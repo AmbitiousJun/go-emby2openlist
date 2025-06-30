@@ -186,7 +186,19 @@ func RedirectOrigin(c *gin.Context) {
 	c.Redirect(http.StatusPermanentRedirect, origin+c.Request.URL.String())
 }
 
-// RedirectIndexHtml 重定向到 web 首页
-func RedirectIndexHtml(c *gin.Context) {
-	c.Redirect(http.StatusTemporaryRedirect, "/web/index.html")
+// ProxyRoot web 首页代理
+func ProxyRoot(c *gin.Context) {
+	resp, err := https.Request(c.Request.Method, config.C.Emby.Host+c.Request.URL.String()).
+		Header(c.Request.Header).
+		Body(c.Request.Body).
+		DoSingle()
+
+	if checkErr(c, err) {
+		return
+	}
+	defer resp.Body.Close()
+
+	https.CloneHeader(c.Writer, resp.Header)
+	c.Status(resp.StatusCode)
+	io.Copy(c.Writer, resp.Body)
 }
