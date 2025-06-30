@@ -9,7 +9,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"regexp"
+	"path/filepath"
 	"strings"
 	"sync"
 
@@ -36,12 +36,16 @@ const MediaSourceIdSegment = "[[_]]"
 // 如果没有携带该参数, 可能会请求到多个资源, 默认返回第一个资源
 func getEmbyFileLocalPath(itemInfo ItemInfo) (string, error) {
 	var header http.Header
-	if itemInfo.ApiKeyType == Header {
+	switch itemInfo.ApiKeyType {
+	case Header:
 		// 带上请求头的 api key
 		header = http.Header{itemInfo.ApiKeyName: []string{itemInfo.ApiKey}}
+	case Query:
+		// 如果是 query 格式的 api key, 则往请求头中补充信息
+		header = http.Header{HeaderFullAuthName: []string{"Token=" + itemInfo.ApiKey}}
 	}
 
-	resp, err := https.Post(config.C.Emby.Host + itemInfo.PlaybackInfoUri).Header(header).Do()
+	resp, err := https.Get(config.C.Emby.Host + itemInfo.PlaybackInfoUri).Header(header).Do()
 	if err != nil {
 		return "", fmt.Errorf("请求 Emby 接口异常, error: %v", err)
 	}
@@ -298,9 +302,6 @@ func findMediaSourceName(source *jsons.Item) string {
 	return mediaStreams.Ti().Idx(idx).Attr("DisplayTitle").Val().(string)
 }
 
-// itemIdRegex 用于匹配出请求 uri 中的 itemId
-var itemIdRegex = regexp.MustCompile(`(?:/emby)?/.*/(\d+)(?:/|\?)?`)
-
 // resolveItemInfo 解析 emby 资源 item 信息
 func resolveItemInfo(c *gin.Context) (ItemInfo, error) {
 	if c == nil {
@@ -309,11 +310,8 @@ func resolveItemInfo(c *gin.Context) (ItemInfo, error) {
 
 	// 匹配 item id
 	uri := c.Request.RequestURI
-	matches := itemIdRegex.FindStringSubmatch(uri)
-	if len(matches) < 2 {
-		return ItemInfo{}, fmt.Errorf("itemId 匹配失败, uri: %s", uri)
-	}
-	itemInfo := ItemInfo{Id: matches[1]}
+	itemId := filepath.Base(filepath.Dir(uri))
+	itemInfo := ItemInfo{Id: itemId}
 
 	// 获取客户端请求的 api_key
 	itemInfo.ApiKeyType, itemInfo.ApiKeyName, itemInfo.ApiKey = getApiKey(c)
