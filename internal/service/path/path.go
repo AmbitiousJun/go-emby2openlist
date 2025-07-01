@@ -31,15 +31,15 @@ func Emby2Openlist(embyPath string) OpenlistPathRes {
 	pathRoutes.WriteString("[")
 	pathRoutes.WriteString("\n【原始路径】 => " + embyPath)
 
+	embyPath = urls.Unescape(embyPath)
+	pathRoutes.WriteString("\n\n【URL 解码】 => " + embyPath)
+
 	embyPath = urls.TransferSlash(embyPath)
 	pathRoutes.WriteString("\n\n【Windows 反斜杠转换】 => " + embyPath)
 
 	embyMount := config.C.Emby.MountPath
 	openlistFilePath := strings.TrimPrefix(embyPath, embyMount)
 	pathRoutes.WriteString("\n\n【移除 mount-path】 => " + openlistFilePath)
-
-	openlistFilePath = urls.Unescape(openlistFilePath)
-	pathRoutes.WriteString("\n\n【URL 解码】 => " + openlistFilePath)
 
 	if mapPath, ok := config.C.Path.MapEmby2Openlist(openlistFilePath); ok {
 		openlistFilePath = mapPath

@@ -47,7 +47,7 @@ var (
 // TransferPlaybackInfo 代理 PlaybackInfo 接口, 防止客户端转码
 func TransferPlaybackInfo(c *gin.Context) {
 	// 1 解析资源信息
-	itemInfo, err := resolveItemInfo(c)
+	itemInfo, err := resolveItemInfo(c, RoutePlaybackInfo)
 	log.Printf(colors.ToBlue("ItemInfo 解析结果: %s"), itemInfo)
 	if checkErr(c, err) {
 		return
@@ -102,10 +102,6 @@ func TransferPlaybackInfo(c *gin.Context) {
 		name = source.Attr("Name").Val().(string)
 		source.Attr("Name").Set(fmt.Sprintf("(原画) %s", name))
 
-		// 提前触发转码版本收集
-		resChan := make(chan []*jsons.Item, 1)
-		go findVideoPreviewInfos(source, name, itemInfo.ApiKey, resChan)
-
 		// 如果客户端请求携带了 MediaSourceId 参数
 		// 在返回数据时, 需要重新设置回原始的 Id
 		if !msInfo.Empty {
@@ -158,6 +154,8 @@ func TransferPlaybackInfo(c *gin.Context) {
 		if !msInfo.Empty || !cfg.Enable || !cfg.ContainerValid(source.Attr("Container").Val().(string)) {
 			return nil
 		}
+		resChan := make(chan []*jsons.Item, 1)
+		go findVideoPreviewInfos(source, name, itemInfo.ApiKey, resChan)
 		resChans = append(resChans, resChan)
 		return nil
 	})
@@ -410,7 +408,7 @@ func LoadCacheItems(c *gin.Context) {
 	}
 
 	// 解析出 ItemId
-	itemInfo, err := resolveItemInfo(c)
+	itemInfo, err := resolveItemInfo(c, RouteItems)
 	if err != nil {
 		return
 	}

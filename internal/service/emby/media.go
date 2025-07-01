@@ -45,14 +45,27 @@ func getEmbyFileLocalPath(itemInfo ItemInfo) (string, error) {
 		header = http.Header{HeaderFullAuthName: []string{"Token=" + itemInfo.ApiKey}}
 	}
 
-	resp, err := https.Get(config.C.Emby.Host + itemInfo.PlaybackInfoUri).Header(header).Do()
+	innerRequest := func(method string) (*http.Response, error) {
+		resp, err := https.Request(method, config.C.Emby.Host+itemInfo.PlaybackInfoUri).Header(header).Do()
+		if err != nil {
+			return nil, fmt.Errorf("请求 Emby 接口异常, error: %v", err)
+		}
+		if resp.StatusCode != http.StatusOK {
+			resp.Body.Close()
+			return nil, fmt.Errorf("请求 Emby 接口异常, error: %s", resp.Status)
+		}
+		return resp, nil
+	}
+
+	// 优先尝试 POST 请求, 响应速度快
+	resp, err := innerRequest(http.MethodPost)
 	if err != nil {
-		return "", fmt.Errorf("请求 Emby 接口异常, error: %v", err)
+		resp, err = innerRequest(http.MethodGet)
+		if err != nil {
+			return "", err
+		}
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("请求 Emby 接口异常, error: %s", resp.Status)
-	}
 
 	type MediaSourcesHolder struct {
 		MediaSources []struct {
@@ -303,15 +316,22 @@ func findMediaSourceName(source *jsons.Item) string {
 }
 
 // resolveItemInfo 解析 emby 资源 item 信息
-func resolveItemInfo(c *gin.Context) (ItemInfo, error) {
+func resolveItemInfo(c *gin.Context, routeType RouteType) (ItemInfo, error) {
 	if c == nil {
 		return ItemInfo{}, errors.New("参数 c 不能为空")
 	}
 
 	// 匹配 item id
-	uri := c.Request.RequestURI
-	itemId := filepath.Base(filepath.Dir(uri))
-	itemInfo := ItemInfo{Id: itemId}
+	uri := c.Request.URL.Path
+	itemInfo := ItemInfo{RouteType: routeType}
+	switch routeType {
+	case RouteItems:
+		itemInfo.Id = filepath.Base(uri)
+	case RoutePlaybackInfo, RouteStream, RouteSyncDownload:
+		itemInfo.Id = filepath.Base(filepath.Dir(uri))
+	default:
+		return ItemInfo{}, fmt.Errorf("不支持的 RouteType: %s", routeType)
+	}
 
 	// 获取客户端请求的 api_key
 	itemInfo.ApiKeyType, itemInfo.ApiKeyName, itemInfo.ApiKey = getApiKey(c)

@@ -20,7 +20,7 @@ import (
 // HandleSyncDownload 处理 Sync 下载接口, 重定向到直链
 func HandleSyncDownload(c *gin.Context) {
 	// 解析出 JobItems id
-	itemInfo, err := resolveItemInfo(c)
+	itemInfo, err := resolveItemInfo(c, RouteSyncDownload)
 	if checkErr(c, err) {
 		return
 	}
