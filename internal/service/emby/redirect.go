@@ -45,7 +45,7 @@ func Redirect2Transcode(c *gin.Context) {
 // Redirect2OpenlistLink 重定向资源到 openlist 网盘直链
 func Redirect2OpenlistLink(c *gin.Context) {
 	// 1 解析要请求的资源信息
-	itemInfo, err := resolveItemInfo(c)
+	itemInfo, err := resolveItemInfo(c, RouteStream)
 	if checkErr(c, err) {
 		return
 	}
