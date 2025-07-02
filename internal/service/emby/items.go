@@ -50,7 +50,7 @@ func ResortRandomItems(c *gin.Context) {
 
 	// 缓存空间没有数据时, 默认使用 emby 的原始随机结果
 	if !ok {
-		u := strings.ReplaceAll(https.ClientRequestUrl(c.Request), "/Items", "/Items/with_limit")
+		u := strings.ReplaceAll(c.Request.RequestURI, "/Items", "/Items/with_limit")
 		c.Redirect(http.StatusTemporaryRedirect, u)
 		return
 	}

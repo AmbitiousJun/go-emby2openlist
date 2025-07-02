@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"reflect"
 
+	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/web/webport"
 	"gopkg.in/yaml.v3"
 )
 
@@ -72,6 +73,20 @@ func ReadFromFile(path string) error {
 	}
 
 	return nil
+}
+
+// ServerInternalRequestHost 服务内部自请求 host
+func ServerInternalRequestHost() string {
+	p := "http://127.0.0.1:" + webport.HTTP
+	if C == nil {
+		return p
+	}
+
+	// 只开启了 https 端口
+	if C.Ssl.Enable && C.Ssl.SinglePort {
+		p = "https://127.0.0.1:" + webport.HTTPS
+	}
+	return p
 }
 
 // initBasePath 初始化 BasePath
