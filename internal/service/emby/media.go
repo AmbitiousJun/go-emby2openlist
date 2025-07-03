@@ -28,12 +28,10 @@ import (
 // MediaSourceIdSegment 自定义 MediaSourceId 的分隔符
 const MediaSourceIdSegment = "[[_]]"
 
-// getEmbyFileLocalPath 获取 Emby 指定资源的 Path 参数
-//
-// 优先从缓存空间中获取 PlaybackInfo 数据
+// getEmbyFileLocalPath 获取 Emby 指定媒体的 Path 参数
 //
 // uri 中必须有 query 参数 MediaSourceId,
-// 如果没有携带该参数, 可能会请求到多个资源, 默认返回第一个资源
+// 如果没有携带该参数, 可能会请求到多个媒体, 默认返回第一个媒体的本地路径
 func getEmbyFileLocalPath(itemInfo ItemInfo) (string, error) {
 	var header http.Header
 	switch itemInfo.ApiKeyType {
