@@ -50,7 +50,12 @@ func getEmbyFileLocalPath(itemInfo ItemInfo) (string, error) {
 		}
 		if resp.StatusCode != http.StatusOK {
 			resp.Body.Close()
-			return nil, fmt.Errorf("请求 Emby 接口异常, error: %s", resp.Status)
+			return nil, fmt.Errorf("请求 Emby 接口异常, status: %s", resp.Status)
+		}
+		contentType := resp.Header.Get("Content-Type")
+		if !strings.HasPrefix(contentType, "application/json") {
+			resp.Body.Close()
+			return nil, fmt.Errorf("请求 Emby 接口异常, 非 json 响应, contentType: %s", contentType)
 		}
 		return resp, nil
 	}
