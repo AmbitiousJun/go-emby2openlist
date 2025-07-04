@@ -36,6 +36,21 @@ emby:
 openlist:
   host: http://192.168.0.109:5244            # openlist 访问地址
   token: openlist-xxxxx                      # openlist api key 可以在 openlist 管理后台查看
+  # 将 openlist 目录树映射生成到磁盘, 并对特殊容器进行特定的转换
+  # 具体使用方式可参考仓库 Readme 文档
+  local-tree-gen:
+    enable: false                            # 功能是否开启
+    # 虚拟媒体容器, 生成的是与媒体同名的空文件
+    # 必须使用本项目反代 openlist 才可以正常播放
+    #
+    # 若媒体元数据可通过 TMDB 刮削, 则配置于此, 不区分大小写
+    virtual-containers: mp4,mkv,ts
+    # strm 媒体容器, 生成的是与媒体名称相同的 strm 文件
+    # 通过 emby 源端口也可能正常播放
+    #
+    # 若媒体元数据是内嵌在源文件中, 如带有标签的音乐, 则配置于此, 不区分大小写
+    strm-containers: mp3,flac
+    refresh-interval: 10                     # 与远程同步刷新的间隔, 单位: 分钟
 
 # 该配置项目前只对阿里云盘生效, 如果你使用的是其他网盘, 请直接将 enable 设置为 false
 video-preview:
