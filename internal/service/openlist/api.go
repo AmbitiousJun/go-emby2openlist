@@ -92,7 +92,7 @@ func FetchFsList(path string, header http.Header) model.HttpRes[FsList] {
 
 	var res FsList
 	err := Fetch("/api/fs/list", http.MethodPost, header, map[string]any{
-		"refresh":  true,
+		"refresh":  false,
 		"password": "",
 		"path":     path,
 	}, &res)
