@@ -5,3 +5,4 @@ ssl/*key
 .DS_Store
 custom-js/*.js
 custom-css/*.css
+openlist-local-tree

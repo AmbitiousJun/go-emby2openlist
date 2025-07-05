@@ -5,6 +5,7 @@ import (
 
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/config"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/constant"
+	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/service/openlist/localtree"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/colors"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/web"
 )
@@ -16,6 +17,11 @@ func main() {
 	}
 
 	printBanner()
+
+	log.Println(colors.ToBlue("正在初始化本地目录树模块..."))
+	if err := localtree.Init(); err != nil {
+		log.Fatal(colors.ToRed(err.Error()))
+	}
 
 	log.Println(colors.ToBlue("正在启动服务..."))
 	if err := web.Listen(); err != nil {
