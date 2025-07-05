@@ -145,6 +145,7 @@ func (rw *RawWriter) Path(path string) string {
 
 // Write 将文件信息写入到本地文件系统中
 func (rw *RawWriter) Write(task FileTask, localPath string) error {
+	// TODO: 加锁
 	header := http.Header{"User-Agent": []string{"libmpv"}}
 	res := openlist.FetchFsGet(task.Path, header)
 	if res.Code != http.StatusOK {

@@ -3,6 +3,7 @@ module github.com/AmbitiousJun/go-emby2openlist/v2
 go 1.24.2
 
 require (
+	github.com/dhowden/tag v0.0.0-20240417053706-3d75831295e8
 	github.com/gin-gonic/gin v1.10.0
 	golang.org/x/sync v0.13.0
 	gopkg.in/yaml.v3 v3.0.1
