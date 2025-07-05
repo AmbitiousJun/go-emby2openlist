@@ -112,7 +112,7 @@ func FetchFsGet(path string, header http.Header) model.HttpRes[FsGet] {
 
 	var res FsGet
 	err := Fetch("/api/fs/get", http.MethodPost, header, map[string]any{
-		"refresh":  true,
+		"refresh":  false,
 		"password": "",
 		"path":     path,
 	}, &res)
@@ -153,6 +153,8 @@ func Fetch(uri, method string, header http.Header, body map[string]any, v any) e
 	// 1 发出请求
 	if header == nil {
 		header = make(http.Header)
+	} else {
+		header = header.Clone()
 	}
 	header.Set("Content-Type", "application/json;charset=utf-8")
 	header.Set("Authorization", token)
