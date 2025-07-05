@@ -84,6 +84,9 @@ func (ti *TempItem) Int64() (int64, bool) {
 	if val, ok := ti.item.val.(int64); ok {
 		return val, true
 	}
+	if val, ok := ti.item.val.(float64); ok {
+		return int64(val), true
+	}
 	return 0, false
 }
 
