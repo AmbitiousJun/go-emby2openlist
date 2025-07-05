@@ -3,6 +3,8 @@ package config
 import (
 	"fmt"
 	"strings"
+
+	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/service/lib/ffmpeg"
 )
 
 type Openlist struct {
@@ -28,6 +30,9 @@ type LocalTreeGen struct {
 	// Enable 是否启用
 	Enable bool `yaml:"enable"`
 
+	// FFmpegEnable 是否启用 ffmpeg
+	FFmpegEnable bool `yaml:"ffmpeg-enable"`
+
 	// VirtualContainers 虚拟媒体容器, 原始串, 以英文逗号分割
 	VirtualContainers string `yaml:"virtual-containers"`
 
@@ -48,6 +53,12 @@ type LocalTreeGen struct {
 func (ltg *LocalTreeGen) Init() error {
 	if !ltg.Enable {
 		return nil
+	}
+
+	if ltg.FFmpegEnable {
+		if err := ffmpeg.AutoDownloadExec(BasePath); err != nil {
+			return fmt.Errorf("ffmpeg 初始化失败: %w", err)
+		}
 	}
 
 	if ltg.RefreshInterval <= 0 {

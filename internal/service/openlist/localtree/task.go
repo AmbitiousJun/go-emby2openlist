@@ -8,10 +8,14 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/config"
+	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/service/lib/ffmpeg"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/service/openlist"
+	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/colors"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/https"
+	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/mp4s"
 )
 
 // FileTask 包含同步必要信息的文件结构
@@ -55,23 +59,23 @@ type TaskWriter interface {
 	Write(task FileTask, localPath string) error
 }
 
-// LoadTaskWriter 根据文件容器加载 TaskWriter
-var LoadTaskWriter = (func() func(container string) TaskWriter {
-	virtual := VirtualWriter{}
-	strm := StrmWriter{}
-	raw := RawWriter{}
+var (
+	virtual = VirtualWriter{}
+	strm    = StrmWriter{}
+	raw     = RawWriter{}
+)
 
-	return func(container string) TaskWriter {
-		cfg := config.C.Openlist.LocalTreeGen
-		if cfg.IsVirtual(container) {
-			return &virtual
-		}
-		if cfg.IsStrm(container) {
-			return &strm
-		}
-		return &raw
+// LoadTaskWriter 根据文件容器加载 TaskWriter
+func LoadTaskWriter(container string) TaskWriter {
+	cfg := config.C.Openlist.LocalTreeGen
+	if cfg.IsVirtual(container) {
+		return &virtual
 	}
-})()
+	if cfg.IsStrm(container) {
+		return &strm
+	}
+	return &raw
+}
 
 // VirtualWriter 写同名空文件
 type VirtualWriter struct{}
@@ -83,12 +87,40 @@ func (vw *VirtualWriter) Path(path string) string {
 }
 
 // Write 将文件信息写入到本地文件系统中
-func (vw *VirtualWriter) Write(_ FileTask, localPath string) error {
-	return os.WriteFile(localPath, []byte{}, os.ModePerm)
+func (vw *VirtualWriter) Write(task FileTask, localPath string) error {
+	// 默认写入时长 3 小时
+	dftDuration := time.Hour * 3
+	if !config.C.Openlist.LocalTreeGen.FFmpegEnable {
+		return os.WriteFile(localPath, mp4s.GenWithDuration(dftDuration), os.ModePerm)
+	}
+
+	rmtUrl := strm.OpenlistPath(task)
+	info, err := ffmpeg.InspectInfo(rmtUrl)
+	if err != nil {
+		return fmt.Errorf("调用 ffmpeg 失败: %w", err)
+	}
+	logf(colors.Gray, "提取文件时长 [%s]: %v", filepath.Base(task.Path), info.Duration)
+
+	return os.WriteFile(localPath, mp4s.GenWithDuration(info.Duration), os.ModePerm)
 }
 
 // StrmWriter 写文件对应的 openlist strm 文件
 type StrmWriter struct{}
+
+// OpenlistPath 生成媒体的 openlist http 访问地址
+func (sw *StrmWriter) OpenlistPath(task FileTask) string {
+	segs := strings.Split(strings.TrimPrefix(task.Path, "/"), "/")
+	for i, seg := range segs {
+		segs[i] = url.PathEscape(seg)
+	}
+
+	return fmt.Sprintf(
+		"%s/d/%s?sign=%s",
+		config.C.Openlist.Host,
+		strings.Join(segs, "/"),
+		task.Sign,
+	)
+}
 
 // Path 将 openlist 文件路径中的文件名
 // 转换为本地文件系统中的文件名
@@ -99,18 +131,7 @@ func (sw *StrmWriter) Path(path string) string {
 
 // Write 将文件信息写入到本地文件系统中
 func (sw *StrmWriter) Write(task FileTask, localPath string) error {
-	segs := strings.Split(strings.TrimPrefix(task.Path, "/"), "/")
-	for i, seg := range segs {
-		segs[i] = url.PathEscape(seg)
-	}
-
-	rmtUrl := fmt.Sprintf(
-		"%s/d/%s?sign=%s",
-		config.C.Openlist.Host,
-		strings.Join(segs, "/"),
-		task.Sign,
-	)
-	return os.WriteFile(localPath, []byte(rmtUrl), os.ModePerm)
+	return os.WriteFile(localPath, []byte(sw.OpenlistPath(task)), os.ModePerm)
 }
 
 // RawWriter 请求 openlist 源文件写入本地

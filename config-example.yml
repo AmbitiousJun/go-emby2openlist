@@ -40,6 +40,11 @@ openlist:
   # 具体使用方式可参考仓库 Readme 文档
   local-tree-gen:
     enable: false                            # 功能是否开启
+    # 是否开启 ffmpeg 辅助
+    #
+    # 主要目的是在生成虚拟容器时, 解析视频的元数据, 供 emby 读取
+    # 可能会有风控风险, 请根据实际情况自行决定是否开启
+    ffmpeg-enable: false
     # 虚拟媒体容器, 生成的是与媒体同名的空文件
     # 必须使用本项目反代 openlist 才可以正常播放
     #
