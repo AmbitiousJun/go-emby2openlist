@@ -39,6 +39,9 @@ type LocalTreeGen struct {
 	// StrmContainers strm 媒体容器, 原始串, 以英文逗号分割
 	StrmContainers string `yaml:"strm-containers"`
 
+	// MusicContainers 音乐媒体容器, 原始串, 以英文逗号分割
+	MusicContainers string `yaml:"music-containers"`
+
 	// RefreshInterval 刷新间隔, 单位: 分钟
 	RefreshInterval int `yaml:"refresh-interval"`
 
@@ -47,6 +50,9 @@ type LocalTreeGen struct {
 
 	// strmContainers strm 媒体容器集合 便于快速查询
 	strmContainers map[string]struct{}
+
+	// musicContainers 音乐媒体容器集合 便于快速查询
+	musicContainers map[string]struct{}
 }
 
 // Init 配置初始化
@@ -77,6 +83,12 @@ func (ltg *LocalTreeGen) Init() error {
 		ltg.strmContainers[strings.ToLower(s)] = struct{}{}
 	}
 
+	ss = strings.Split(strings.TrimSpace(ltg.MusicContainers), ",")
+	ltg.musicContainers = make(map[string]struct{}, len(ss))
+	for _, s := range ss {
+		ltg.musicContainers[strings.ToLower(s)] = struct{}{}
+	}
+
 	return nil
 }
 
@@ -91,5 +103,12 @@ func (ltg *LocalTreeGen) IsVirtual(container string) bool {
 func (ltg *LocalTreeGen) IsStrm(container string) bool {
 	container = strings.ToLower(container)
 	_, ok := ltg.strmContainers[container]
+	return ok
+}
+
+// IsMusic 判断一个容器是否属于音乐容器
+func (ltg *LocalTreeGen) IsMusic(container string) bool {
+	container = strings.ToLower(container)
+	_, ok := ltg.musicContainers[container]
 	return ok
 }

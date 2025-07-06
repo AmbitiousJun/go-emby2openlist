@@ -2,6 +2,7 @@ package ffmpeg
 
 import (
 	"bufio"
+	"bytes"
 	"errors"
 	"fmt"
 	"os/exec"
@@ -56,4 +57,28 @@ func InspectInfo(path string) (Info, error) {
 	cmd.Process.Kill()
 	cmd.Wait()
 	return i, nil
+}
+
+// GenSilentMP3Bytes 使用 ffmpeg 生成静音 MP3 并返回字节内容
+func GenSilentMP3Bytes(durationSec float64) ([]byte, error) {
+	args := []string{
+		"-f", "lavfi",
+		"-i", "anullsrc=r=44100:cl=mono",
+		"-t", fmt.Sprintf("%d", int(durationSec)),
+		"-acodec", "libmp3lame",
+		"-q:a", "9",
+		"-f", "mp3",
+		"pipe:1", // 输出到 stdout
+	}
+
+	cmd := exec.Command(execPath, args...)
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = nil // 或者接 stderr 输出查看错误
+
+	if err := cmd.Run(); err != nil {
+		return nil, err
+	}
+
+	return out.Bytes(), nil
 }

@@ -13,6 +13,7 @@ import (
 
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/config"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/service/lib/ffmpeg"
+	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/service/music"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/service/openlist"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/colors"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/https"
@@ -61,24 +62,28 @@ type TaskWriter interface {
 }
 
 var (
-	virtual = VirtualWriter{}
-	strm    = StrmWriter{}
-	raw     = RawWriter{}
+	vw = VirtualWriter{}
+	sw = StrmWriter{}
+	mw = MusicWriter{}
+	rw = RawWriter{}
 )
 
 // LoadTaskWriter 根据文件容器加载 TaskWriter
 func LoadTaskWriter(container string) TaskWriter {
 	cfg := config.C.Openlist.LocalTreeGen
 	if cfg.IsVirtual(container) {
-		return &virtual
+		return &vw
 	}
 	if cfg.IsStrm(container) {
-		return &strm
+		return &sw
 	}
-	return &raw
+	if cfg.IsMusic(container) {
+		return &mw
+	}
+	return &rw
 }
 
-// VirtualWriter 写同名空文件
+// VirtualWriter 写同名空文件, 尝试写入媒体时长
 type VirtualWriter struct{}
 
 // Path 将 openlist 文件路径中的文件名
@@ -95,7 +100,7 @@ func (vw *VirtualWriter) Write(task FileTask, localPath string) error {
 		return os.WriteFile(localPath, mp4s.GenWithDuration(dftDuration), os.ModePerm)
 	}
 
-	rmtUrl := strm.OpenlistPath(task)
+	rmtUrl := sw.OpenlistPath(task)
 	info, err := ffmpeg.InspectInfo(rmtUrl)
 	if err != nil {
 		return fmt.Errorf("调用 ffmpeg 失败: %w", err)
@@ -133,6 +138,38 @@ func (sw *StrmWriter) Path(path string) string {
 // Write 将文件信息写入到本地文件系统中
 func (sw *StrmWriter) Write(task FileTask, localPath string) error {
 	return os.WriteFile(localPath, []byte(sw.OpenlistPath(task)), os.ModePerm)
+}
+
+// MusicWriter 写同名空文件, 同时尝试写入时长和音乐标签元数据信息
+type MusicWriter struct{}
+
+// Path 将 openlist 文件路径中的文件名
+// 转换为本地文件系统中的文件名
+func (mw *MusicWriter) Path(path string) string {
+	return path
+}
+
+// Write 将文件信息写入到本地文件系统中
+func (mw *MusicWriter) Write(task FileTask, localPath string) error {
+	if !config.C.Openlist.LocalTreeGen.FFmpegEnable {
+		// 必须开启 ffmpeg 才能生成, 改用 strm 替代
+		return sw.Write(task, localPath)
+	}
+
+	rmtUrl := sw.OpenlistPath(task)
+	info, err := ffmpeg.InspectInfo(rmtUrl)
+	if err != nil {
+		return fmt.Errorf("解析音乐时长失败: %w", err)
+	}
+	logf(colors.Gray, "提取文件时长 [%s]: %v", filepath.Base(task.Path), info.Duration)
+
+	meta, err := music.ExtractRemoteTag(rmtUrl)
+	if err != nil {
+		return fmt.Errorf("提取音乐元数据失败: %w", err)
+	}
+	logf(colors.Gray, "提取音乐元数据 [%s]: %s %s", filepath.Base(task.Path), meta.Title(), meta.Artist())
+
+	return music.WriteFakeMP3(localPath, meta, info.Duration)
 }
 
 // RawWriter 请求 openlist 源文件写入本地

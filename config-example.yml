@@ -49,12 +49,20 @@ openlist:
     # 必须使用本项目反代 openlist 才可以正常播放
     #
     # 若媒体元数据可通过 TMDB 刮削, 则配置于此, 不区分大小写
-    virtual-containers: mp4,mkv,ts
+    #
+    # 默认写入视频时长 3 小时, 若开启 ffmpeg 辅助, 则会尝试解析视频真实时长, !有风控风险谨慎开启!
+    virtual-containers: mp4,mkv
     # strm 媒体容器, 生成的是与媒体名称相同的 strm 文件
     # 通过 emby 源端口也可能正常播放
     #
     # 若媒体元数据是内嵌在源文件中, 如带有标签的音乐, 则配置于此, 不区分大小写
-    strm-containers: mp3,flac
+    strm-containers: ts
+    # 音乐媒体容器, 生成的是与媒体同名的空文件
+    # 必须使用本项目反代 openlist 才可以正常播放
+    # 必须开启 ffmpeg 辅助才能解析音频时长以及音乐标签数据到空文件中, !有风控风险谨慎开启!
+    #
+    # 未开启 ffmpeg 辅助时, 由 strm 容器代替
+    music-containers: mp3,flac
     refresh-interval: 10                     # 与远程同步刷新的间隔, 单位: 分钟
 
 # 该配置项目前只对阿里云盘生效, 如果你使用的是其他网盘, 请直接将 enable 设置为 false

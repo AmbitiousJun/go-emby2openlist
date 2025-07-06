@@ -106,7 +106,7 @@ func (s *Synchronizer) Sync() (added, deleted int, err error) {
 	}()
 
 	// 读取根目录放置到任务通道中
-	if err := s.walkDir2SyncTasks("/"); err != nil {
+	if err := s.walkDir2SyncTasks("/音乐1"); err != nil {
 		return 0, 0, fmt.Errorf("获取 openlist 根目录异常: %w", err)
 	}
 
