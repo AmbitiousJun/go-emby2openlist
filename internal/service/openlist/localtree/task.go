@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/config"
@@ -135,7 +136,9 @@ func (sw *StrmWriter) Write(task FileTask, localPath string) error {
 }
 
 // RawWriter 请求 openlist 源文件写入本地
-type RawWriter struct{}
+type RawWriter struct {
+	mu sync.Mutex
+}
 
 // Path 将 openlist 文件路径中的文件名
 // 转换为本地文件系统中的文件名
@@ -145,7 +148,10 @@ func (rw *RawWriter) Path(path string) string {
 
 // Write 将文件信息写入到本地文件系统中
 func (rw *RawWriter) Write(task FileTask, localPath string) error {
-	// TODO: 加锁
+	// 防止并发访问网盘触发风控
+	rw.mu.Lock()
+	defer rw.mu.Unlock()
+
 	header := http.Header{"User-Agent": []string{"libmpv"}}
 	res := openlist.FetchFsGet(task.Path, header)
 	if res.Code != http.StatusOK {
@@ -189,6 +195,7 @@ func (rw *RawWriter) Write(task FileTask, localPath string) error {
 
 		resp.Body.Close()
 		writeErr = nil
+		logf(colors.Gray, "下载 openlist 源文件 [%s]", filepath.Base(task.Path))
 		break
 	}
 
