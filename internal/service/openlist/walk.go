@@ -21,7 +21,20 @@ type Walker[T any] struct {
 }
 
 // walkWaiter 用于当客户端需要请求 openlist 时, 暂时阻塞所有 walk 操作
-var walkWaiter = sync.WaitGroup{}
+var (
+	walkWaiterMu = sync.Mutex{}
+	walkWaiter = sync.NewCond(&walkWaiterMu);
+	mainApiRunnerCount = 0;
+)
+
+// waitForMainComplete 阻塞等待主 api 请求完毕
+func waitForMainComplete() {
+	walkWaiterMu.Lock()
+	for mainApiRunnerCount > 0 {
+		walkWaiter.Wait()
+	}
+	walkWaiterMu.Unlock()
+}
 
 // FetchFsList 请求 openlist "/api/fs/list" 接口, 支持分页
 //
@@ -33,7 +46,7 @@ func WalkFsList(path string, perPage int) *Walker[FsList] {
 		if w.curPage < 1 {
 			return FsList{}, ErrWalkEOF
 		}
-		walkWaiter.Wait()
+		waitForMainComplete()
 
 		var res FsList
 		err := Fetch("/api/fs/list", http.MethodPost, nil, map[string]any{
