@@ -89,8 +89,8 @@ func FetchFsList(path string, header http.Header) model.HttpRes[FsList] {
 		return model.HttpRes[FsList]{Code: http.StatusBadRequest, Msg: "参数 path 不能为空"}
 	}
 
-	walkWaiter.Add(1)
-	defer walkWaiter.Done()
+	addMainApiRunner()
+	defer removeMainApiRunner()
 
 	var res FsList
 	err := Fetch("/api/fs/list", http.MethodPost, header, map[string]any{
@@ -112,8 +112,8 @@ func FetchFsGet(path string, header http.Header) model.HttpRes[FsGet] {
 		return model.HttpRes[FsGet]{Code: http.StatusBadRequest, Msg: "参数 path 不能为空"}
 	}
 
-	walkWaiter.Add(1)
-	defer walkWaiter.Done()
+	addMainApiRunner()
+	defer removeMainApiRunner()
 
 	var res FsGet
 	err := Fetch("/api/fs/get", http.MethodPost, header, map[string]any{
@@ -135,8 +135,8 @@ func FetchFsOther(path string, header http.Header) model.HttpRes[FsOther] {
 		return model.HttpRes[FsOther]{Code: http.StatusBadRequest, Msg: "参数 path 不能为空"}
 	}
 
-	walkWaiter.Add(1)
-	defer walkWaiter.Done()
+	addMainApiRunner()
+	defer removeMainApiRunner()
 
 	var res FsOther
 	err := Fetch("/api/fs/other", http.MethodPost, header, map[string]any{
@@ -196,4 +196,23 @@ func Fetch(uri, method string, header http.Header, body map[string]any, v any) e
 		return fmt.Errorf("Fetch 请求响应数据解析失败: %v, 响应内容: %s", err, string(res.Data))
 	}
 	return nil
+}
+
+// addMainApiRunner 添加主 api 请求标记
+func addMainApiRunner() {
+	walkWaiterMu.Lock()
+	mainApiRunnerCount++
+	walkWaiterMu.Unlock()
+}
+
+// removeMainApiRunner 移除主 api 请求标记
+func removeMainApiRunner() {
+	walkWaiterMu.Lock()
+	if mainApiRunnerCount > 0 {
+		mainApiRunnerCount--
+	}
+	if mainApiRunnerCount == 0 {
+		walkWaiter.Broadcast()
+	}
+	walkWaiterMu.Unlock()
 }
