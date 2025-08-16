@@ -20,6 +20,7 @@ import (
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/logs/colors"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/mp4s"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/trys"
+	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/urls"
 )
 
 // FileTask 包含同步必要信息的文件结构
@@ -44,7 +45,7 @@ func FsGetTask(prefix string, info openlist.FsGet) FileTask {
 	container := strings.TrimPrefix(strings.ToLower(filepath.Ext(info.Name)), ".")
 	fp := filepath.Join(prefix, info.Name)
 	return FileTask{
-		Path:      fp,
+		Path:      urls.TransferSlash(fp),
 		LocalPath: fp,
 		IsDir:     info.IsDir,
 		Sign:      info.Sign,
