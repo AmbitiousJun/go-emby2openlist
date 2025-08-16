@@ -304,10 +304,11 @@ func (s *Synchronizer) updateLocalTree(okTaskChan <-chan FileTask, total, added,
 				chanOpen = false
 				break
 			}
-			current.Put(task.LocalPath, task.IsDir)
+			cleanLocalPath := urls.TransferSlash(task.LocalPath)
+			current.Put(cleanLocalPath, task.IsDir)
 			*total++
 			// 判断是否是新增
-			if _, exists := s.snapshot.Check(task.LocalPath); !exists {
+			if _, exists := s.snapshot.Check(cleanLocalPath); !exists {
 				*added++
 			}
 		}
