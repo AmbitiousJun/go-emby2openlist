@@ -56,6 +56,12 @@ func Redirect2Transcode(c *gin.Context) {
 
 // Redirect2OpenlistLink 重定向资源到 openlist 网盘直链
 func Redirect2OpenlistLink(c *gin.Context) {
+	// 不处理字幕接口
+	if strings.Contains(strings.ToLower(c.Request.RequestURI), "subtitles") {
+		ProxyOrigin(c)
+		return
+	}
+
 	// 1 解析要请求的资源信息
 	itemInfo, err := resolveItemInfo(c, RouteStream)
 	if checkErr(c, err) {
@@ -160,6 +166,11 @@ func Redirect2OpenlistLink(c *gin.Context) {
 
 // ProxyOriginalResource 拦截 original 接口
 func ProxyOriginalResource(c *gin.Context) {
+	if strings.Contains(strings.ToLower(c.Request.RequestURI), "subtitles") {
+		ProxyOrigin(c)
+		return
+	}
+
 	itemInfo, err := resolveItemInfo(c, RouteOriginal)
 	if checkErr(c, err) {
 		return
