@@ -145,6 +145,8 @@ func getApiKey(c *gin.Context) (keyType ApiKeyType, keyName string, apiKey strin
 	apiKey = c.GetHeader(keyName)
 	if strs.AllNotEmpty(apiKey) {
 		if (AuthorizationTokenExtractReg.MatchString(apiKey)) {
+			keyType = Query
+			keyName = QueryTokenName
 			apiKey = AuthorizationTokenExtractReg.FindStringSubmatch(apiKey)[1]
 		}
 		return
@@ -154,6 +156,8 @@ func getApiKey(c *gin.Context) (keyType ApiKeyType, keyName string, apiKey strin
 	apiKey = c.GetHeader(keyName)
 	if strs.AllNotEmpty(apiKey) {
 		if (AuthorizationTokenExtractReg.MatchString(apiKey)) {
+			keyType = Query
+			keyName = QueryTokenName
 			apiKey = AuthorizationTokenExtractReg.FindStringSubmatch(apiKey)[1]
 		}
 		return
@@ -163,6 +167,8 @@ func getApiKey(c *gin.Context) (keyType ApiKeyType, keyName string, apiKey strin
 	apiKey = c.GetHeader(keyName)
 	if strs.AllNotEmpty(apiKey) {
 		if (AuthorizationTokenExtractReg.MatchString(apiKey)) {
+			keyType = Query
+			keyName = QueryTokenName
 			apiKey = AuthorizationTokenExtractReg.FindStringSubmatch(apiKey)[1]
 		}
 		return
