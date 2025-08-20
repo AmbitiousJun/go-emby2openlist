@@ -45,6 +45,9 @@ const (
 
 const UnauthorizedResp = "Access token is invalid or expired."
 
+// AuthorizationTokenExtractReg 匹配 Authorization 头中 Token 字段
+var AuthorizationTokenExtractReg = regexp.MustCompile(`(?i)token="([^"]+)"`)
+
 // ApiKeyChecker 对指定的 api 进行鉴权
 //
 // 该中间件会将客户端传递的 api_key 发送给 emby 服务器, 如果 emby 返回 401 异常
@@ -141,18 +144,27 @@ func getApiKey(c *gin.Context) (keyType ApiKeyType, keyName string, apiKey strin
 	keyType = Header
 	apiKey = c.GetHeader(keyName)
 	if strs.AllNotEmpty(apiKey) {
+		if (AuthorizationTokenExtractReg.MatchString(apiKey)) {
+			apiKey = AuthorizationTokenExtractReg.FindStringSubmatch(apiKey)[1]
+		}
 		return
 	}
 
 	keyName = HeaderAuthName
 	apiKey = c.GetHeader(keyName)
 	if strs.AllNotEmpty(apiKey) {
+		if (AuthorizationTokenExtractReg.MatchString(apiKey)) {
+			apiKey = AuthorizationTokenExtractReg.FindStringSubmatch(apiKey)[1]
+		}
 		return
 	}
 
 	keyName = HeaderFullAuthName
 	apiKey = c.GetHeader(keyName)
 	if strs.AllNotEmpty(apiKey) {
+		if (AuthorizationTokenExtractReg.MatchString(apiKey)) {
+			apiKey = AuthorizationTokenExtractReg.FindStringSubmatch(apiKey)[1]
+		}
 		return
 	}
 
