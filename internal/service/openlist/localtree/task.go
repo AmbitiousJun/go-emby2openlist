@@ -218,6 +218,8 @@ func (rw *RawWriter) Write(task FileTask, localPath string) error {
 	u := res.Data.RawUrl
 
 	err := trys.Try(func() (err error) {
+		logf(colors.Yellow, "尝试下载 openlist 源文件, 路径: [%s]", localPath)
+
 		file, err := os.Create(localPath)
 		if err != nil {
 			return fmt.Errorf("创建文件失败 [%s]: %w", localPath, err)
@@ -240,9 +242,9 @@ func (rw *RawWriter) Write(task FileTask, localPath string) error {
 			return fmt.Errorf("写入 openlist 源文件到本地磁盘失败, 拷贝异常: %w", err)
 		}
 
-		logf(colors.Gray, "下载 openlist 源文件 [%s]", filepath.Base(task.Path))
+		logf(colors.Gray, "openlist 源文件 [%s] 已写入本地", filepath.Base(task.Path))
 		return
-	}, 3, time.Second)
+	}, 3, time.Second*5)
 
 	return err
 }
