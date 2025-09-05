@@ -25,6 +25,9 @@ type RequestHolder struct {
 
 	// redirect 是否自动重定向
 	redirect bool
+
+	// closeConn 请求结束后是否关闭连接
+	closeConn bool
 }
 
 // Request 构造自定义请求
@@ -83,6 +86,12 @@ func (r *RequestHolder) Body(body io.ReadCloser) *RequestHolder {
 	return r
 }
 
+// CloseConn 请求完毕之后关闭 tcp 连接
+func (r *RequestHolder) CloseConn() *RequestHolder {
+	r.closeConn = true
+	return r
+}
+
 // Do 发起请求 自动重定向
 func (r *RequestHolder) Do() (*http.Response, error) {
 	r.redirect = true
@@ -125,6 +134,8 @@ func (r *RequestHolder) execute() (string, *http.Response, error) {
 		if err != nil {
 			return "", nil, fmt.Errorf("创建请求失败: %v", err)
 		}
+
+		req.Close = r.closeConn
 		req.Header = header
 
 		// 2 发出请求
