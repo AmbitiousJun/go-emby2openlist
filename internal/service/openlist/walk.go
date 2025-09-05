@@ -24,9 +24,9 @@ type Walker[T any] struct {
 
 // walkWaiter 用于当客户端需要请求 openlist 时, 暂时阻塞所有 walk 操作
 var (
-	walkWaiterMu = sync.Mutex{}
-	walkWaiter = sync.NewCond(&walkWaiterMu);
-	mainApiRunnerCount = 0;
+	walkWaiterMu       = sync.Mutex{}
+	walkWaiter         = sync.NewCond(&walkWaiterMu)
+	mainApiRunnerCount = 0
 )
 
 // waitForMainComplete 阻塞等待主 api 请求完毕
