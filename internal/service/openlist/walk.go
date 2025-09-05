@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"sync"
+
+	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/logs"
 )
 
 // ErrWalkEOF 标记分页遍历结束
@@ -30,8 +32,14 @@ var (
 // waitForMainComplete 阻塞等待主 api 请求完毕
 func waitForMainComplete() {
 	walkWaiterMu.Lock()
+	var flag bool
 	for mainApiRunnerCount > 0 {
+		logs.Info("优先处理客户端 fs 请求, openlist walk 暂停...")
+		flag = true
 		walkWaiter.Wait()
+	}
+	if flag {
+		logs.Info("openlist walk 继续运行")
 	}
 	walkWaiterMu.Unlock()
 }
@@ -55,7 +63,7 @@ func WalkFsList(path string, perPage int) *Walker[FsList] {
 			"path":     path,
 			"page":     w.curPage,
 			"per_page": perPage,
-		}, &res)
+		}, &res, true)
 		if err != nil {
 			return FsList{}, fmt.Errorf("FsList 请求失败: %w", err)
 		}

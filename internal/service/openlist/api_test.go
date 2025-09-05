@@ -21,7 +21,7 @@ func TestFetch(t *testing.T) {
 		"refresh":  true,
 		"password": "",
 		"path":     "/",
-	}, &res)
+	}, &res, true)
 	if err != nil {
 		t.Error(err)
 		return

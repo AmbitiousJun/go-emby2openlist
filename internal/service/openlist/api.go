@@ -97,7 +97,7 @@ func FetchFsList(path string, header http.Header) model.HttpRes[FsList] {
 		"refresh":  false,
 		"password": "",
 		"path":     path,
-	}, &res)
+	}, &res, false)
 	if err != nil {
 		return model.HttpRes[FsList]{Code: http.StatusInternalServerError, Msg: fmt.Sprintf("FsList 请求失败: %v", err)}
 	}
@@ -120,7 +120,7 @@ func FetchFsGet(path string, header http.Header) model.HttpRes[FsGet] {
 		"refresh":  false,
 		"password": "",
 		"path":     path,
-	}, &res)
+	}, &res, false)
 	if err != nil {
 		return model.HttpRes[FsGet]{Code: http.StatusInternalServerError, Msg: fmt.Sprintf("FsGet 请求失败: %v", err)}
 	}
@@ -143,7 +143,7 @@ func FetchFsOther(path string, header http.Header) model.HttpRes[FsOther] {
 		"method":   "video_preview",
 		"password": "",
 		"path":     path,
-	}, &res)
+	}, &res, false)
 	if err != nil {
 		return model.HttpRes[FsOther]{Code: http.StatusInternalServerError, Msg: fmt.Sprintf("FsOther 请求失败: %v", err)}
 	}
@@ -151,7 +151,7 @@ func FetchFsOther(path string, header http.Header) model.HttpRes[FsOther] {
 }
 
 // Fetch 请求 openlist api, 响应封装在 v 指针指向的结构中
-func Fetch(uri, method string, header http.Header, body map[string]any, v any) error {
+func Fetch(uri, method string, header http.Header, body map[string]any, v any, closeConn bool) error {
 	host := config.C.Openlist.Host
 	token := config.C.Openlist.Token
 	if strs.AnyEmpty(host, token) {
@@ -167,11 +167,18 @@ func Fetch(uri, method string, header http.Header, body map[string]any, v any) e
 	header.Set("Content-Type", "application/json;charset=utf-8")
 	header.Set("Authorization", token)
 
-	resp, err := https.Request(method, host+uri).Header(header).Body(https.MapBody(body)).Do()
+	holder := https.Request(method, host+uri).Header(header).Body(https.MapBody(body))
+	if closeConn {
+		holder.CloseConn()
+	}
+	resp, err := holder.Do()
 	if err != nil {
 		return fmt.Errorf("Fetch 请求失败: %v", err)
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("Fetch 请求失败, 错误响应码: %v", resp.Status)
+	}
 
 	// 2 检测响应状态是否正常
 	resBytes, err := io.ReadAll(resp.Body)
