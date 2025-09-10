@@ -40,6 +40,9 @@ type Synchronizer struct {
 
 	// activeTaskCount 记录 BFS 遍历过程中的活跃任务数
 	activeTaskCount int32
+
+	// threadsSem 控制同步任务的并发线程数
+	threadsSem chan struct{}
 }
 
 // NewSynchronizer 指定目录树根路径 初始化一个同步器
@@ -61,6 +64,7 @@ func (s *Synchronizer) Sync() (total, added, deleted int, err error) {
 	s.toSyncTasks = make(chan []FileTask, 1024)
 	okTaskChan := make(chan FileTask, 1024)
 	s.eg, s.ctx = errgroup.WithContext(context.Background())
+	s.threadsSem = make(chan struct{}, config.C.Openlist.LocalTreeGen.Threads)
 
 	// 读取根目录放置到任务通道中
 	s.activeTaskCount = 0
@@ -237,7 +241,7 @@ func (s *Synchronizer) handleSyncTasks(okTaskChan chan<- FileTask) {
 		for _, task := range tasks {
 			select {
 			case <-s.ctx.Done():
-				return nil
+				return s.ctx.Err()
 			default:
 				// 根据用户配置忽略特定文件和目录
 				cfg := config.C.Openlist.LocalTreeGen
@@ -271,11 +275,23 @@ func (s *Synchronizer) handleSyncTasks(okTaskChan chan<- FileTask) {
 	// BFS
 	for tasks := range s.toSyncTasks {
 		s.eg.Go(func() error {
+			// 获取线程信号量
+			select {
+			case s.threadsSem <- struct{}{}:
+			case <-s.ctx.Done():
+				return s.ctx.Err()
+			}
+
+			// 释放线程
+			defer func() { <-s.threadsSem }()
+
+			// 更新活跃任务数
 			defer func() {
 				if atomic.AddInt32(&s.activeTaskCount, -1) == 0 {
 					close(s.toSyncTasks)
 				}
 			}()
+			
 			return handleTasks(tasks)
 		})
 	}

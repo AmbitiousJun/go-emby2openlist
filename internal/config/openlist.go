@@ -57,6 +57,9 @@ type LocalTreeGen struct {
 	// IgnoreContainers 忽略指定的容器
 	IgnoreContainers string `yaml:"ignore-containers"`
 
+	// Threads 同步线程数
+	Threads int `yaml:"threads"`
+
 	// virtualContainers 虚拟媒体容器集合 便于快速查询
 	virtualContainers map[string]struct{}
 
@@ -99,6 +102,14 @@ func (ltg *LocalTreeGen) Init() error {
 		if !strings.HasPrefix(prefix, "/") {
 			return fmt.Errorf("无效扫描前缀: [%s], 必须以 / 开头", prefix)
 		}
+	}
+
+	if ltg.Threads == 0 {
+		// 默认线程数
+		ltg.Threads = 8
+	}
+	if ltg.Threads < 0 {
+		return fmt.Errorf("无效同步线程数: [%d], 必须配置为大于 0 的值", ltg.Threads)
 	}
 
 	ss := strings.Split(strings.TrimSpace(ltg.VirtualContainers), ",")
