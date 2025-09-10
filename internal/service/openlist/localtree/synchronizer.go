@@ -242,9 +242,11 @@ func (s *Synchronizer) handleSyncTasks(okTaskChan chan<- FileTask) {
 				// 根据用户配置忽略特定文件和目录
 				cfg := config.C.Openlist.LocalTreeGen
 				if !cfg.IsValidPrefix(task.Path) {
+					logf(colors.Yellow, "路径被忽略: [%s]", task.Path)
 					continue
 				}
 				if !task.IsDir && cfg.IsIgnore(task.Container) {
+					logf(colors.Yellow, "文件被忽略: [%s]", task.Path)
 					continue
 				}
 
