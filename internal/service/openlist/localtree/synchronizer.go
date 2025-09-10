@@ -43,6 +43,12 @@ type Synchronizer struct {
 
 	// threadsSem 控制同步任务的并发线程数
 	threadsSem chan struct{}
+
+	// hasScanTotal 当前已扫描到的总任务数
+	hasScanTotal int64
+
+	// hasScanFinish 当前已处理完成的任务数
+	hasScanFinish int64
 }
 
 // NewSynchronizer 指定目录树根路径 初始化一个同步器
@@ -65,12 +71,26 @@ func (s *Synchronizer) Sync() (total, added, deleted int, err error) {
 	okTaskChan := make(chan FileTask, 1024)
 	s.eg, s.ctx = errgroup.WithContext(context.Background())
 	s.threadsSem = make(chan struct{}, config.C.Openlist.LocalTreeGen.Threads)
+	s.hasScanFinish, s.hasScanTotal = 0, 0
 
 	// 读取根目录放置到任务通道中
 	s.activeTaskCount = 0
 	if err := s.walkDir2SyncTasks("/"); err != nil {
 		return 0, 0, 0, fmt.Errorf("获取 openlist 根目录异常: %w", err)
 	}
+
+	// 每隔固定时间输出一下当前的同步进度
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
+	go func() {
+		for range ticker.C {
+			var percent float64
+			if (s.hasScanTotal > 0) {
+				percent = float64(s.hasScanFinish) / float64(s.hasScanTotal)
+			}
+			logf(colors.Purple, "预估同步进度 (已扫描/已发现任务数) => %d/%d (%.2f%%)", s.hasScanFinish, s.hasScanTotal, percent * 100)
+		}
+	}()
 
 	// 执行同步任务
 	go s.handleSyncTasks(okTaskChan)
@@ -164,6 +184,7 @@ func (s *Synchronizer) walkDir2SyncTasks(prefix string) error {
 		}
 		s.toSyncTasks <- taskList
 		atomic.AddInt32(&s.activeTaskCount, 1)
+		atomic.AddInt64(&s.hasScanTotal, int64(len(taskList)))
 
 		err = trys.Try(func() (innerErr error) {
 			page, innerErr = walker.Next()
@@ -243,6 +264,9 @@ func (s *Synchronizer) handleSyncTasks(okTaskChan chan<- FileTask) {
 			case <-s.ctx.Done():
 				return s.ctx.Err()
 			default:
+				// 更新同步进度
+				defer atomic.AddInt64(&s.hasScanFinish, 1)
+
 				// 根据用户配置忽略特定文件和目录
 				cfg := config.C.Openlist.LocalTreeGen
 				if !cfg.IsValidPrefix(task.Path) {
@@ -291,7 +315,7 @@ func (s *Synchronizer) handleSyncTasks(okTaskChan chan<- FileTask) {
 					close(s.toSyncTasks)
 				}
 			}()
-			
+
 			return handleTasks(tasks)
 		})
 	}
