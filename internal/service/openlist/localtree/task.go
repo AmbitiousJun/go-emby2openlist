@@ -113,9 +113,17 @@ func (vw *VirtualWriter) Write(task FileTask, localPath string) error {
 	if err != nil {
 		return fmt.Errorf("调用 ffmpeg 失败: %w", err)
 	}
-	logf(colors.Gray, "提取文件时长 [%s]: %v", filepath.Base(task.Path), info.Duration)
 
-	return os.WriteFile(localPath, mp4s.GenWithDuration(info.Duration), os.ModePerm)
+	if err :=  os.WriteFile(localPath, mp4s.GenWithDuration(info.Duration), os.ModePerm); err != nil {
+		return err
+	}
+
+	abs, err := filepath.Abs(localPath)
+	if err != nil {
+		abs = localPath
+	}
+	logf(colors.Gray, "生成虚拟文件 [%s]: [时长: %v]", abs, info.Duration)
+	return nil
 }
 
 // StrmWriter 写文件对应的 openlist strm 文件
@@ -145,7 +153,17 @@ func (sw *StrmWriter) Path(path string) string {
 
 // Write 将文件信息写入到本地文件系统中
 func (sw *StrmWriter) Write(task FileTask, localPath string) error {
-	return os.WriteFile(localPath, []byte(sw.OpenlistPath(task)), os.ModePerm)
+	if err := os.WriteFile(localPath, []byte(sw.OpenlistPath(task)), os.ModePerm); err != nil {
+		return err
+	}
+
+	abs, err := filepath.Abs(localPath)
+	if err != nil {
+		abs = localPath
+	}
+	logf(colors.Gray, "生成 strm: [%s]", abs)
+
+	return nil
 }
 
 // MusicWriter 写同名空文件, 同时尝试写入时长和音乐标签元数据信息
@@ -187,9 +205,16 @@ func (mw *MusicWriter) Write(task FileTask, localPath string) error {
 		return fmt.Errorf("提取音乐封面失败 [%s]: %w", filepath.Base(task.Path), err)
 	}
 
-	logf(colors.Gray, "提取音乐元数据 [%s]: [标题: %s] [艺术家: %s] [时长: %v]", filepath.Base(task.Path), meta.Title, meta.Artist, meta.Duration)
+	if err := music.WriteFakeMP3(localPath, meta, pic); err != nil {
+		return err
+	}
 
-	return music.WriteFakeMP3(localPath, meta, pic)
+	abs, err := filepath.Abs(localPath)
+	if err != nil {
+		abs = localPath
+	}
+	logf(colors.Gray, "生成音乐虚拟文件 [%s]: [标题: %s] [艺术家: %s] [时长: %v]", abs, meta.Title, meta.Artist, meta.Duration)
+	return nil
 }
 
 // RawWriter 请求 openlist 源文件写入本地
