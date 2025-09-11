@@ -39,6 +39,9 @@ type FileTask struct {
 
 	// Sign openlist 文件签名
 	Sign string
+
+	// Modified 文件的最后修改时间
+	Modified time.Time
 }
 
 func FsGetTask(prefix string, info openlist.FsGet) FileTask {
@@ -50,6 +53,7 @@ func FsGetTask(prefix string, info openlist.FsGet) FileTask {
 		IsDir:     info.IsDir,
 		Sign:      info.Sign,
 		Container: container,
+		Modified:  info.Modified,
 	}
 }
 
@@ -114,7 +118,7 @@ func (vw *VirtualWriter) Write(task FileTask, localPath string) error {
 		return fmt.Errorf("调用 ffmpeg 失败: %w", err)
 	}
 
-	if err :=  os.WriteFile(localPath, mp4s.GenWithDuration(info.Duration), os.ModePerm); err != nil {
+	if err := os.WriteFile(localPath, mp4s.GenWithDuration(info.Duration), os.ModePerm); err != nil {
 		return err
 	}
 
@@ -235,12 +239,6 @@ func (rw *RawWriter) Write(task FileTask, localPath string) error {
 	defer rw.mu.Unlock()
 
 	header := http.Header{"User-Agent": []string{"libmpv"}}
-	res := openlist.FetchFsGet(task.Path, header)
-	if res.Code != http.StatusOK {
-		return fmt.Errorf("请求 openlist 文件失败: %s", res.Msg)
-	}
-
-	u := res.Data.RawUrl
 
 	err := trys.Try(func() (err error) {
 		logf(colors.Yellow, "尝试下载 openlist 源文件, 路径: [%s]", localPath)
@@ -251,7 +249,7 @@ func (rw *RawWriter) Write(task FileTask, localPath string) error {
 		}
 		defer file.Close()
 
-		resp, err := https.Get(u).Do()
+		resp, err := https.Get(sw.OpenlistPath(task)).Header(header).Do()
 		if err != nil {
 			return fmt.Errorf("请求 openlist 直链失败: %w", err)
 		}

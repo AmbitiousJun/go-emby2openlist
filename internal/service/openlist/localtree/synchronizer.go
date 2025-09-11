@@ -241,11 +241,14 @@ func (s *Synchronizer) handleSyncTasks(okTaskChan chan<- FileTask) {
 		stat, err := os.Stat(localAbsPath)
 		if err == nil {
 			if !stat.IsDir() {
-				// 文件已存在, 不进行任何操作
-				return nil
+				// 文件已存在
+				// 根据本地文件的修改时间和远程文件的修改时间判断文件是否发生变更
+				if stat.ModTime().After(task.Modified) {
+					return nil
+				}
 			}
 			if err := os.RemoveAll(localAbsPath); err != nil {
-				return fmt.Errorf("删除占用目录异常: %w", err)
+				return fmt.Errorf("删除占用路径异常 [%s]: %w", localAbsPath, err)
 			}
 		}
 

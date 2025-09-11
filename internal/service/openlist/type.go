@@ -3,6 +3,7 @@ package openlist
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 )
 
 // FetchInfo 请求 openlist 资源需要的参数信息
@@ -67,19 +68,19 @@ type FsOther struct {
 
 // FsGet /api/fs/get 接口响应数据结构
 type FsGet struct {
-	Name     string `json:"name"`     // 文件名
-	Size     int64  `json:"size"`     // 文件大小
-	IsDir    bool   `json:"is_dir"`   // 是否为文件夹
-	Modified string `json:"modified"` // 修改时间
-	Sign     string `json:"sign"`     // 文件签名
-	Thumb    string `json:"thumb"`    // 缩略图链接
-	Type     int    `json:"type"`     // 类型
-	RawUrl   string `json:"raw_url"`  // 原始资源链接
-	Readme   string `json:"readme"`   // 说明
-	Provider string `json:"provider"` // 提供者
-	Created  string `json:"created"`  // 创建时间
-	HashInfo string `json:"hashinfo"` // 哈希信息
-	Header   string `json:"header"`   // 头信息
+	Name     string    `json:"name"`     // 文件名
+	Size     int64     `json:"size"`     // 文件大小
+	IsDir    bool      `json:"is_dir"`   // 是否为文件夹
+	Modified time.Time `json:"modified"` // 修改时间
+	Sign     string    `json:"sign"`     // 文件签名
+	Thumb    string    `json:"thumb"`    // 缩略图链接
+	Type     int       `json:"type"`     // 类型
+	RawUrl   string    `json:"raw_url"`  // 原始资源链接
+	Readme   string    `json:"readme"`   // 说明
+	Provider string    `json:"provider"` // 提供者
+	Created  time.Time `json:"created"`  // 创建时间
+	HashInfo string    `json:"hashinfo"` // 哈希信息
+	Header   string    `json:"header"`   // 头信息
 }
 
 // FsList /api/fs/list 接口响应数据结构
