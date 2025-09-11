@@ -1,7 +1,9 @@
 package emby
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"slices"
@@ -97,6 +99,24 @@ func Redirect2OpenlistLink(c *gin.Context) {
 		logs.Success("重定向 strm: %s", finalPath)
 		c.Header(cache.HeaderKeyExpired, cache.Duration(time.Minute*10))
 		c.Redirect(http.StatusTemporaryRedirect, finalPath)
+
+		// 异步发送一个播放 Playback 请求, 触发 emby 解析 strm 视频格式
+		go func() {
+			originUrl, err := url.Parse(config.C.Emby.Host + itemInfo.PlaybackInfoUri)
+			if err != nil {
+				return
+			}
+			q := originUrl.Query()
+			q.Set("IsPlayback", "true")
+			q.Set("AutoOpenLiveStream", "true")
+			originUrl.RawQuery = q.Encode()
+			resp, err := https.Post(originUrl.String()).Body(io.NopCloser(bytes.NewBufferString(PlaybackCommonPayload))).Do()
+			if err != nil {
+				return
+			}
+			resp.Body.Close()
+		}()
+
 		return
 	}
 
