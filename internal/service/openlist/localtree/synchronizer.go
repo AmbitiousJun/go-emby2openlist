@@ -80,7 +80,7 @@ func (s *Synchronizer) Sync() (total, added, deleted int, err error) {
 	}
 
 	// 每隔固定时间输出一下当前的同步进度
-	ticker := time.NewTicker(time.Second)
+	ticker := time.NewTicker(time.Second * 10)
 	defer ticker.Stop()
 	go func() {
 		for range ticker.C {
@@ -270,11 +270,9 @@ func (s *Synchronizer) handleSyncTasks(okTaskChan chan<- FileTask) {
 				// 根据用户配置忽略特定文件和目录
 				cfg := config.C.Openlist.LocalTreeGen
 				if !cfg.IsValidPrefix(task.Path) {
-					logf(colors.Yellow, "路径被忽略: [%s]", task.Path)
 					continue
 				}
 				if !task.IsDir && cfg.IsIgnore(task.Container) {
-					logf(colors.Yellow, "文件被忽略: [%s]", task.Path)
 					continue
 				}
 
