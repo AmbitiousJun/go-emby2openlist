@@ -242,9 +242,9 @@ func getFinalRedirectLink(originLink string, header http.Header) string {
 	var finalLink string
 	err := trys.Try(func() (err error) {
 		logs.Info("正在尝试内部重定向, originLink: [%s]", originLink)
-		fl, resp, err := https.Get(originLink).Header(header).DoRedirect()
-		if err != nil {
-			return
+		fl, resp, e := https.Get(originLink).Header(header).DoRedirect()
+		if e != nil {
+			return e
 		}
 		defer resp.Body.Close()
 		finalLink = fl
