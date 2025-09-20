@@ -16,6 +16,7 @@ import (
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/https"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/logs"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/strs"
+	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/trys"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/urls"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/web/cache"
 
@@ -237,11 +238,23 @@ func checkErr(c *gin.Context, err error) bool {
 //
 // 请求中途出现任何失败都会返回原始链接
 func getFinalRedirectLink(originLink string, header http.Header) string {
-	finalLink, resp, err := https.Get(originLink).Header(header).DoRedirect()
+
+	var finalLink string
+	err := trys.Try(func() (err error) {
+		logs.Info("正在尝试内部重定向, originLink: [%s]", originLink)
+		fl, resp, err := https.Get(originLink).Header(header).DoRedirect()
+		if err != nil {
+			return
+		}
+		defer resp.Body.Close()
+		finalLink = fl
+		return nil
+	}, 3, time.Second*2)
+
 	if err != nil {
 		logs.Warn("内部重定向失败: %v", err)
 		return originLink
 	}
-	defer resp.Body.Close()
+
 	return finalLink
 }
