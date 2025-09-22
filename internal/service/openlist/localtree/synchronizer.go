@@ -85,10 +85,10 @@ func (s *Synchronizer) Sync() (total, added, deleted int, err error) {
 	go func() {
 		for range ticker.C {
 			var percent float64
-			if (s.hasScanTotal > 0) {
+			if s.hasScanTotal > 0 {
 				percent = float64(s.hasScanFinish) / float64(s.hasScanTotal)
 			}
-			logf(colors.Purple, "预估同步进度 (已扫描/已发现任务数) => %d/%d (%.2f%%)", s.hasScanFinish, s.hasScanTotal, percent * 100)
+			logf(colors.Purple, "预估同步进度 (已扫描/已发现任务数) => %d/%d (%.2f%%)", s.hasScanFinish, s.hasScanTotal, percent*100)
 		}
 	}()
 
