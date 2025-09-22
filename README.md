@@ -5,8 +5,8 @@
 <h1 align="center">go-emby2openlist</h1>
 
 <div align="center">
-  <a href="https://github.com/AmbitiousJun/go-emby2openlist/tree/v2.2.12"><img src="https://img.shields.io/github/v/tag/AmbitiousJun/go-emby2openlist"></img></a>
-  <a href="https://hub.docker.com/r/ambitiousjun/go-emby2openlist/tags"><img src="https://img.shields.io/docker/image-size/ambitiousjun/go-emby2openlist/v2.2.12"></img></a>
+  <a href="https://github.com/AmbitiousJun/go-emby2openlist/tree/v2.2.13"><img src="https://img.shields.io/github/v/tag/AmbitiousJun/go-emby2openlist"></img></a>
+  <a href="https://hub.docker.com/r/ambitiousjun/go-emby2openlist/tags"><img src="https://img.shields.io/docker/image-size/ambitiousjun/go-emby2openlist/v2.2.13"></img></a>
   <a href="https://hub.docker.com/r/ambitiousjun/go-emby2openlist/tags"><img src="https://img.shields.io/docker/pulls/ambitiousjun/go-emby2openlist"></img></a>
   <a href="https://github.com/AmbitiousJun/go-emby2openlist/releases/latest"><img src="https://img.shields.io/github/downloads/AmbitiousJun/go-emby2openlist/total"></img></a>
   <a href="https://goreportcard.com/report/github.com/AmbitiousJun/go-emby2openlist/v2"><img src="https://goreportcard.com/badge/github.com/AmbitiousJun/go-emby2openlist/v2"></img></a>
@@ -175,7 +175,7 @@
 1. 获取代码
 
 ```shell
-git clone --branch v2.2.12 --depth 1 https://github.tbedu.top/https://github.com/AmbitiousJun/go-emby2openlist
+git clone --branch v2.2.13 --depth 1 https://github.tbedu.top/https://github.com/AmbitiousJun/go-emby2openlist
 cd go-emby2openlist
 ```
 
@@ -244,7 +244,7 @@ docker image prune -f
 
 1. 准备配置
 
-参考[示例配置](https://github.com/AmbitiousJun/go-emby2openlist/blob/v2.2.12/config-example.yml)，配置好自己的服务器信息，保存并命名为 `config.yml`
+参考[示例配置](https://github.com/AmbitiousJun/go-emby2openlist/blob/v2.2.13/config-example.yml)，配置好自己的服务器信息，保存并命名为 `config.yml`
 
 2. 创建 docker-compose 文件
 
@@ -254,7 +254,7 @@ docker image prune -f
 version: "3.1"
 services:
   go-emby2openlist:
-    image: ambitiousjun/go-emby2openlist:v2.2.12
+    image: ambitiousjun/go-emby2openlist:v2.2.13
     environment:
       - TZ=Asia/Shanghai
       - GIN_MODE=release
@@ -360,7 +360,7 @@ docker-compose up -d --build
 
    **优点**：无需调用 ffmpeg，扫描速度极快，Emby 源端口 8096 也可能可以正常播放
 
-   **缺点**：每个视频都需要使用 Emby 源端口至少播放一次后才能正常保存播放记录，配合反代服务体验不佳（`v2.2.12` 版本之后通过反代播放 Strm 也可正常记录播放进度）；无法获取视频的阿里转码版本
+   **缺点**：每个视频都需要使用 Emby 源端口至少播放一次后才能正常保存播放记录，配合反代服务体验不佳（`v2.2.13` 版本之后通过反代播放 Strm 也可正常记录播放进度）；无法获取视频的阿里转码版本
 
 2. 虚拟文件
 
