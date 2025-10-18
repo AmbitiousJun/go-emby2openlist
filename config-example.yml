@@ -23,6 +23,11 @@ emby:
     path-map:
       - https://test-res.com:8094 => http://localhost:8095
       - 12138 => 10086
+    # 是否启用 strm 内部重定向
+    #
+    # 启用, 程序会在内部访问 strm 远程地址并重定向到最终地址后, 再重定向给客户端
+    # 禁用, 程序会将 strm 的原始地址直接重定向给客户端
+    internal-redirect-enable: false
   # emby 下载接口处理策略
   #    403: 禁用下载接口, 返回 403 响应
   # origin: 代理到源服务器

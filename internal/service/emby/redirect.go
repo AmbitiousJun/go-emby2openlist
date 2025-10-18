@@ -236,8 +236,15 @@ func checkErr(c *gin.Context, err error) bool {
 
 // getFinalRedirectLink 尝试对带有重定向的原始链接进行内部请求, 返回最终链接
 //
+// 检测到 internal-redirect-enable 配置未启用时, 直接返回原始链接
+//
 // 请求中途出现任何失败都会返回原始链接
 func getFinalRedirectLink(originLink string, header http.Header) string {
+
+	if !config.C.Emby.Strm.InternalRedirectEnable {
+		logs.Info("internal-redirect-enable 未启用, 使用原始链接")
+		return originLink
+	}
 
 	var finalLink string
 	err := trys.Try(func() (err error) {

@@ -110,6 +110,9 @@ func (e *Emby) Init() error {
 type Strm struct {
 	// PathMap 远程路径映射
 	PathMap []string `yaml:"path-map"`
+	// InternalRedirectEnable 是否启用 strm 内部重定向
+	InternalRedirectEnable bool `yaml:"internal-redirect-enable"`
+
 	// pathMap 配置初始化后转换为二维数组切片结构
 	pathMap [][2]string
 }
