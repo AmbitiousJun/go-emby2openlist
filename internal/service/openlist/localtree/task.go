@@ -107,11 +107,15 @@ func (vw *VirtualWriter) Write(task FileTask, localPath string) error {
 		return os.WriteFile(localPath, mp4s.GenWithDuration(dftDuration), os.ModePerm)
 	}
 
-	rmtUrl := sw.OpenlistPath(task)
+	// 获取真实的下载链接，跟随 302 跳转
+	realUrl, err := getRealDownloadUrl(task)
+	if err != nil {
+		return fmt.Errorf("获取真实下载链接失败: %w", err)
+	}
 
 	var info ffmpeg.Info
-	err := trys.Try(func() (err error) {
-		info, err = ffmpeg.InspectInfo(rmtUrl)
+	err = trys.Try(func() (err error) {
+		info, err = ffmpeg.InspectInfo(realUrl)
 		return
 	}, 3, time.Second)
 	if err != nil {
@@ -186,11 +190,15 @@ func (mw *MusicWriter) Write(task FileTask, localPath string) error {
 		return sw.Write(task, localPath)
 	}
 
-	rmtUrl := sw.OpenlistPath(task)
+	// 获取真实的下载链接，跟随 302 跳转
+	realUrl, err := getRealDownloadUrl(task)
+	if err != nil {
+		return fmt.Errorf("获取真实下载链接失败: %w", err)
+	}
 
 	var meta ffmpeg.Music
-	err := trys.Try(func() (err error) {
-		meta, err = ffmpeg.InspectMusic(rmtUrl)
+	err = trys.Try(func() (err error) {
+		meta, err = ffmpeg.InspectMusic(realUrl)
 		return
 	}, 3, time.Second)
 	if err != nil {
@@ -202,7 +210,7 @@ func (mw *MusicWriter) Write(task FileTask, localPath string) error {
 
 	var pic []byte
 	err = trys.Try(func() (err error) {
-		pic, err = ffmpeg.ExtractMusicCover(rmtUrl)
+		pic, err = ffmpeg.ExtractMusicCover(realUrl)
 		return
 	}, 3, time.Second)
 	if err != nil {
@@ -270,4 +278,50 @@ func (rw *RawWriter) Write(task FileTask, localPath string) error {
 	}, 3, time.Second*5)
 
 	return err
+}
+
+// getRealDownloadUrl 获取真实的下载链接，跟随 302 跳转
+func getRealDownloadUrl(task FileTask) (string, error) {
+	// 构建 openlist 的 /d/ 路径
+	openlistUrl := sw.OpenlistPath(task)
+
+	// 发送请求并跟随重定向
+	client := &http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			// 允许跟随重定向
+			return nil
+		},
+	}
+
+	req, err := http.NewRequest("GET", openlistUrl, nil)
+	if err != nil {
+		return "", fmt.Errorf("创建请求失败: %w", err)
+	}
+
+	// 设置 User-Agent
+	req.Header.Set("User-Agent", "libmpv")
+
+	// 发送请求
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("请求失败: %w", err)
+	}
+	defer resp.Body.Close()
+
+	// 检查响应状态
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("请求失败，状态码: %d", resp.StatusCode)
+	}
+
+	// 获取最终的 URL（经过重定向后的真实链接）
+	finalUrl := resp.Request.URL.String()
+
+	// 检查是否有重定向发生
+	if finalUrl == openlistUrl {
+		// 没有重定向，直接返回原始 URL
+		return finalUrl, nil
+	} else {
+		// 发生了重定向，使用重定向后的链接
+		return finalUrl, nil
+	}
 }
