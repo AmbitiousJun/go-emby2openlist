@@ -17,6 +17,7 @@ import (
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/service/openlist"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/bytess"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/https"
+	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/logs"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/logs/colors"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/mp4s"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/trys"
@@ -107,11 +108,9 @@ func (vw *VirtualWriter) Write(task FileTask, localPath string) error {
 		return os.WriteFile(localPath, mp4s.GenWithDuration(dftDuration), os.ModePerm)
 	}
 
-	rmtUrl := sw.OpenlistPath(task)
-
 	var info ffmpeg.Info
 	err := trys.Try(func() (err error) {
-		info, err = ffmpeg.InspectInfo(rmtUrl)
+		info, err = ffmpeg.InspectInfo(getRealDownloadUrl(task))
 		return
 	}, 3, time.Second)
 	if err != nil {
@@ -186,11 +185,9 @@ func (mw *MusicWriter) Write(task FileTask, localPath string) error {
 		return sw.Write(task, localPath)
 	}
 
-	rmtUrl := sw.OpenlistPath(task)
-
 	var meta ffmpeg.Music
 	err := trys.Try(func() (err error) {
-		meta, err = ffmpeg.InspectMusic(rmtUrl)
+		meta, err = ffmpeg.InspectMusic(getRealDownloadUrl(task))
 		return
 	}, 3, time.Second)
 	if err != nil {
@@ -202,7 +199,7 @@ func (mw *MusicWriter) Write(task FileTask, localPath string) error {
 
 	var pic []byte
 	err = trys.Try(func() (err error) {
-		pic, err = ffmpeg.ExtractMusicCover(rmtUrl)
+		pic, err = ffmpeg.ExtractMusicCover(getRealDownloadUrl(task))
 		return
 	}, 3, time.Second)
 	if err != nil {
@@ -238,7 +235,7 @@ func (rw *RawWriter) Write(task FileTask, localPath string) error {
 	rw.mu.Lock()
 	defer rw.mu.Unlock()
 
-	header := http.Header{"User-Agent": []string{"libmpv"}}
+	header := http.Header{"User-Agent": []string{ffmpeg.DefaultUserAgent}}
 
 	err := trys.Try(func() (err error) {
 		logf(colors.Yellow, "尝试下载 openlist 源文件, 路径: [%s]", localPath)
@@ -270,4 +267,28 @@ func (rw *RawWriter) Write(task FileTask, localPath string) error {
 	}, 3, time.Second*5)
 
 	return err
+}
+
+// getRealDownloadUrl 获取真实的下载链接，跟随 302 跳转
+func getRealDownloadUrl(task FileTask) string {
+	// 构建 openlist 的 /d/ 路径
+	openlistUrl := sw.OpenlistPath(task)
+
+	// 发送请求并跟随重定向
+	finalUrl, resp, err := https.
+		Get(openlistUrl).
+		AddHeader("User-Agent", ffmpeg.DefaultUserAgent).
+		DoRedirect()
+	if err != nil {
+		logs.Warn("获取真实下载链接失败: %w", err)
+		return openlistUrl
+	}
+	defer resp.Body.Close()
+
+	if !https.IsSuccessCode(resp.StatusCode) {
+		logs.Warn("获取真实下载链接失败: %s", resp.Status)
+		return openlistUrl
+	}
+
+	return finalUrl
 }
