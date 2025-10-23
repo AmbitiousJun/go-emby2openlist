@@ -6,13 +6,12 @@ import (
 	"fmt"
 	"os/exec"
 	"sync"
+
+	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/constant"
 )
 
 // OpenError ffmpeg 打开文件失败
 const OpenError = "Error opening input:"
-
-// DefaultUserAgent 
-const DefaultUserAgent = "libmpv"
 
 // mu 任务逐个执行
 var mu sync.Mutex
@@ -25,7 +24,7 @@ func InspectInfo(path string) (Info, error) {
 	mu.Lock()
 	defer mu.Unlock()
 
-	cmd := exec.Command(execPath, "-user_agent", DefaultUserAgent, "-threads", "1", "-i", path)
+	cmd := exec.Command(execPath, "-user_agent", constant.CommonDlUserAgent, "-threads", "1", "-i", path)
 
 	outputBytes, _ := cmd.CombinedOutput()
 	if bytes.Contains(outputBytes, []byte(OpenError)) {
@@ -48,7 +47,7 @@ func InspectMusic(path string) (Music, error) {
 	mu.Lock()
 	defer mu.Unlock()
 
-	cmd := exec.Command(execPath, "-user_agent", DefaultUserAgent, "-threads", "1", "-i", path)
+	cmd := exec.Command(execPath, "-user_agent", constant.CommonDlUserAgent, "-threads", "1", "-i", path)
 	outputBytes, _ := cmd.CombinedOutput()
 
 	if bytes.Contains(outputBytes, []byte(OpenError)) {
@@ -139,7 +138,7 @@ func ExtractMusicCover(path string) ([]byte, error) {
 	mu.Lock()
 	defer mu.Unlock()
 
-	cmd := exec.Command(execPath, "-user_agent", DefaultUserAgent, "-threads", "1", "-i", path, "-an", "-vframes", "1", "-f", "image2", "-vcodec", "mjpeg", "pipe:1")
+	cmd := exec.Command(execPath, "-user_agent", constant.CommonDlUserAgent, "-threads", "1", "-i", path, "-an", "-vframes", "1", "-f", "image2", "-vcodec", "mjpeg", "pipe:1")
 
 	outputBytes, err := cmd.Output()
 	if err != nil {

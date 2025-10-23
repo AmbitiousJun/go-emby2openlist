@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/config"
+	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/constant"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/service/lib/ffmpeg"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/service/music"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/service/openlist"
@@ -235,7 +236,7 @@ func (rw *RawWriter) Write(task FileTask, localPath string) error {
 	rw.mu.Lock()
 	defer rw.mu.Unlock()
 
-	header := http.Header{"User-Agent": []string{ffmpeg.DefaultUserAgent}}
+	header := http.Header{"User-Agent": []string{constant.CommonDlUserAgent}}
 
 	err := trys.Try(func() (err error) {
 		logf(colors.Yellow, "尝试下载 openlist 源文件, 路径: [%s]", localPath)
@@ -277,7 +278,7 @@ func getRealDownloadUrl(task FileTask) string {
 	// 发送请求并跟随重定向
 	finalUrl, resp, err := https.
 		Get(openlistUrl).
-		AddHeader("User-Agent", ffmpeg.DefaultUserAgent).
+		AddHeader("User-Agent", constant.CommonDlUserAgent).
 		DoRedirect()
 	if err != nil {
 		logs.Warn("获取真实下载链接失败: %w", err)

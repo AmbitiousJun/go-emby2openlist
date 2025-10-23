@@ -51,4 +51,6 @@ const (
 
 	CustomJsDirName  = "custom-js"  // 自定义脚本存放目录
 	CustomCssDirName = "custom-css" // 自定义样式存放目录
+
+	CommonDlUserAgent = "libmpv" // 通用的下载 UA
 )
