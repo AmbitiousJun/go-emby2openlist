@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"sync"
 
+	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/config"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/constant"
 )
 
@@ -24,7 +25,15 @@ func InspectInfo(path string) (Info, error) {
 	mu.Lock()
 	defer mu.Unlock()
 
-	cmd := exec.Command(execPath, "-user_agent", constant.CommonDlUserAgent, "-threads", "1", "-i", path)
+	args := []string{"-user_agent", constant.CommonDlUserAgent, "-threads", "1", "-i", path}
+	proxy := ""
+	if config.C != nil && config.C.Openlist != nil && config.C.Openlist.LocalTreeGen != nil {
+		proxy = config.C.Openlist.LocalTreeGen.ProxyAddr
+	}
+	if proxy != "" {
+		args = append([]string{"-http_proxy", proxy}, args...)
+	}
+	cmd := exec.Command(execPath, args...)
 
 	outputBytes, _ := cmd.CombinedOutput()
 	if bytes.Contains(outputBytes, []byte(OpenError)) {
@@ -47,7 +56,15 @@ func InspectMusic(path string) (Music, error) {
 	mu.Lock()
 	defer mu.Unlock()
 
-	cmd := exec.Command(execPath, "-user_agent", constant.CommonDlUserAgent, "-threads", "1", "-i", path)
+	args := []string{"-user_agent", constant.CommonDlUserAgent, "-threads", "1", "-i", path}
+	proxy := ""
+	if config.C != nil && config.C.Openlist != nil && config.C.Openlist.LocalTreeGen != nil {
+		proxy = config.C.Openlist.LocalTreeGen.ProxyAddr
+	}
+	if proxy != "" {
+		args = append([]string{"-http_proxy", proxy}, args...)
+	}
+	cmd := exec.Command(execPath, args...)
 	outputBytes, _ := cmd.CombinedOutput()
 
 	if bytes.Contains(outputBytes, []byte(OpenError)) {
@@ -138,7 +155,15 @@ func ExtractMusicCover(path string) ([]byte, error) {
 	mu.Lock()
 	defer mu.Unlock()
 
-	cmd := exec.Command(execPath, "-user_agent", constant.CommonDlUserAgent, "-threads", "1", "-i", path, "-an", "-vframes", "1", "-f", "image2", "-vcodec", "mjpeg", "pipe:1")
+	args := []string{"-user_agent", constant.CommonDlUserAgent, "-threads", "1", "-i", path, "-an", "-vframes", "1", "-f", "image2", "-vcodec", "mjpeg", "pipe:1"}
+	proxy := ""
+	if config.C != nil && config.C.Openlist != nil && config.C.Openlist.LocalTreeGen != nil {
+		proxy = config.C.Openlist.LocalTreeGen.ProxyAddr
+	}
+	if proxy != "" {
+		args = append([]string{"-http_proxy", proxy}, args...)
+	}
+	cmd := exec.Command(execPath, args...)
 
 	outputBytes, err := cmd.Output()
 	if err != nil {
