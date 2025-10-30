@@ -3,8 +3,6 @@ package config
 import (
 	"fmt"
 	"strings"
-
-	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/service/lib/ffmpeg"
 )
 
 type Openlist struct {
@@ -80,12 +78,6 @@ type LocalTreeGen struct {
 func (ltg *LocalTreeGen) Init() error {
 	if !ltg.Enable {
 		return nil
-	}
-
-	if ltg.FFmpegEnable {
-		if err := ffmpeg.AutoDownloadExec(BasePath); err != nil {
-			return fmt.Errorf("ffmpeg 初始化失败: %w", err)
-		}
 	}
 
 	if ltg.AutoRemoveMaxCount < 0 {

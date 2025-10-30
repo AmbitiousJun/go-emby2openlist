@@ -12,6 +12,7 @@ import (
 
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/config"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/constant"
+	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/service/lib/ffmpeg"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/service/openlist/localtree"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/logs"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/logs/colors"
@@ -29,6 +30,14 @@ func main() {
 
 	if err := config.ReadFromFile(filepath.Join(dataRoot, "config.yml")); err != nil {
 		log.Fatal(err)
+	}
+	// 初始化阶段检查并自动下载 ffmpeg（只做一次）
+	if config.C.Openlist != nil && config.C.Openlist.LocalTreeGen != nil && config.C.Openlist.LocalTreeGen.FFmpegEnable {
+		if err := ffmpeg.AutoDownloadExec(dataRoot); err != nil {
+			logs.Error("ffmpeg 初始化失败: %v", err)
+		} else {
+			logs.Info("ffmpeg 环境检测通过 ✓")
+		}
 	}
 
 	printBanner()
