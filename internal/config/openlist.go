@@ -60,6 +60,9 @@ type LocalTreeGen struct {
 	// Threads 同步线程数
 	Threads int `yaml:"threads"`
 
+	// ProxyAddr ffmpeg 网络请求代理地址，格式如：http://127.0.0.1:7890 或 socks5://127.0.0.1:1080，留空则不启用
+	ProxyAddr string `yaml:"proxy-addr"`
+
 	// virtualContainers 虚拟媒体容器集合 便于快速查询
 	virtualContainers map[string]struct{}
 
