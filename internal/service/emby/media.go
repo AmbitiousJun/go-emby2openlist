@@ -361,7 +361,7 @@ func simplifyMediaName(source *jsons.Item) {
 	}
 
 	originName, _ := source.Attr("Name").String()
-	reg := regexp.MustCompile(`(?i)S\d+(E\d+)?`)
+	reg := regexp.MustCompile(`(?i)S\d+E\d+?`)
 	if reg.MatchString(originName) {
 		loc := reg.FindStringIndex(originName)
 		if len(loc) > 0 {
