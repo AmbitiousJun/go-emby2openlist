@@ -343,6 +343,58 @@ func detectVirtualVideoDisplayTitle(source *jsons.Item) {
 	}
 }
 
+// detectSubtitleStreamsDeliveryUrl 强制将外部挂载字幕的访问方式调整为直链访问
+func detectSubtitleStreamsDeliveryUrl(source *jsons.Item, apiKey string) {
+	if source == nil || source.Type() != jsons.JsonTypeObj {
+		return
+	}
+
+	// 获取当前播放源的 id 和 itemId
+	id, ok := source.Attr("Id").String()
+	if !ok {
+		return
+	}
+	itemId, ok := source.Attr("ItemId").String()
+	if !ok {
+		return
+	}
+
+	// 获取媒体流
+	mediaStreams, ok := source.Attr("MediaStreams").Done()
+	if !ok || mediaStreams.Type() != jsons.JsonTypeArr {
+		return
+	}
+
+	mediaStreams.RangeArr(func(_ int, value *jsons.Item) error {
+		if value.Attr("Type").Val() != "Subtitle" {
+			return nil
+		}
+
+		// 仅处理外挂字幕
+		isExternal, _ := value.Attr("IsExternal").Bool()
+		if !isExternal {
+			return nil
+		}
+
+		// DeliveryMethod 为 External 时, Emby 默认会提供 DeliveryUrl 字段, 无需手动修改
+		deliveryMethod, _ := value.Attr("DeliveryMethod").String()
+		if deliveryMethod == "External" {
+			return nil
+		}
+		value.Put("DeliveryMethod", jsons.FromValue("External"))
+
+		subIndex, _ := value.Attr("Index").Int()
+		codec, ok := value.Attr("Codec").String()
+		if !ok {
+			codec = "vtt"
+		}
+		u, _ := url.Parse(fmt.Sprintf("/Videos/%s/%s/Subtitles/%d/0/Stream.%s?api_key=%s", itemId, id, subIndex, codec, apiKey))
+		value.Put("DeliveryUrl", jsons.FromValue(u.String()))
+		return nil
+	})
+
+}
+
 // simplifyMediaName 简化 MediaSource 中的视频名称, 如 '1080p HEVC'
 func simplifyMediaName(source *jsons.Item) {
 	if source == nil || source.Type() != jsons.JsonTypeObj {
@@ -361,7 +413,7 @@ func simplifyMediaName(source *jsons.Item) {
 	}
 
 	originName, _ := source.Attr("Name").String()
-	reg := regexp.MustCompile(`(?i)S\d+(E\d+)?`)
+	reg := regexp.MustCompile(`(?i)S\d+E\d+?`)
 	if reg.MatchString(originName) {
 		loc := reg.FindStringIndex(originName)
 		if len(loc) > 0 {

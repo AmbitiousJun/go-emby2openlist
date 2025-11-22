@@ -95,6 +95,8 @@ func TransferPlaybackInfo(c *gin.Context) {
 
 		detectVirtualVideoDisplayTitle(source)
 
+		detectSubtitleStreamsDeliveryUrl(source, itemInfo.ApiKey)
+
 		// 如果客户端请求携带了 MediaSourceId 参数
 		// 在返回数据时, 需要重新设置回原始的 Id
 		if !msInfo.Empty {
