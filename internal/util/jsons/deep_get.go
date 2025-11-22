@@ -70,6 +70,12 @@ func (ti *TempItem) Int() (int, bool) {
 	if val, ok := ti.item.val.(int); ok {
 		return val, true
 	}
+	if val, ok := ti.item.val.(int64); ok {
+		return int(val), true
+	}
+	if val, ok := ti.item.val.(float64); ok {
+		return int(val), true
+	}
 	return 0, false
 }
 
