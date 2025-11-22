@@ -384,11 +384,7 @@ func detectSubtitleStreamsDeliveryUrl(source *jsons.Item, apiKey string) {
 		value.Put("DeliveryMethod", jsons.FromValue("External"))
 
 		subIndex, _ := value.Attr("Index").Int()
-		codec, ok := value.Attr("Codec").String()
-		if !ok {
-			codec = "vtt"
-		}
-		u, _ := url.Parse(fmt.Sprintf("/Videos/%s/%s/Subtitles/%d/0/Stream.%s?api_key=%s", itemId, id, subIndex, codec, apiKey))
+		u, _ := url.Parse(fmt.Sprintf("/Videos/%s/%s/Subtitles/%d/0/Stream.vtt?api_key=%s", itemId, id, subIndex, apiKey))
 		value.Put("DeliveryUrl", jsons.FromValue(u.String()))
 		return nil
 	})
