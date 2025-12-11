@@ -181,6 +181,8 @@ cd go-emby2openlist
 
 2. 拷贝配置
 
+> 示例配置为完整版配置，首次部署可以参照[核心配置](https://github.com/AmbitiousJun/go-emby2openlist/issues/108#issuecomment-2928599051)优先跑通程序，再按需补充其他配置
+
 ```shell
 cp config-example.yml config.yml
 ```
@@ -243,6 +245,8 @@ docker image prune -f
 ### 使用现有镜像
 
 1. 准备配置
+
+> 示例配置为完整版配置，首次部署可以参照[核心配置](https://github.com/AmbitiousJun/go-emby2openlist/issues/108#issuecomment-2928599051)优先跑通程序，再按需补充其他配置
 
 参考[示例配置](https://github.com/AmbitiousJun/go-emby2openlist/blob/v2.3.2/config-example.yml)，配置好自己的服务器信息，保存并命名为 `config.yml`
 
