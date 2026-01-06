@@ -80,6 +80,8 @@ openlist:
     ignore-containers: jpg,jpeg,png,txt,nfo,md
     # 同步线程数
     threads: 8
+    # ffmpeg 网络请求代理地址，格式如：http://127.0.0.1:7890 或 socks5://127.0.0.1:1080，留空则不启用
+    proxy-addr: ''
 
 # 该配置项目前只对阿里云盘生效, 如果你使用的是其他网盘, 请直接将 enable 设置为 false
 video-preview:
