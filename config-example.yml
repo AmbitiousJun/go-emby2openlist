@@ -35,7 +35,9 @@ emby:
   download-strategy: 403
   # emby 本地媒体根目录
   # 检测到该路径为前缀的媒体时, 代理回源处理
-  local-media-root: /data/local
+  local-media-roots:
+    - /data/local
+    - /data/other
 
 # openlist 访问配置
 openlist:

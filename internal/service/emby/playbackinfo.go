@@ -9,7 +9,6 @@ import (
 	"net/url"
 	"regexp"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/config"
@@ -113,7 +112,7 @@ func TransferPlaybackInfo(c *gin.Context) {
 
 		// 如果是本地媒体, 不处理
 		embyPath, _ := source.Attr("Path").String()
-		if strings.HasPrefix(embyPath, config.C.Emby.LocalMediaRoot) {
+		if config.C.Emby.IsLocalMediaPath(embyPath) {
 			return nil
 		}
 
@@ -205,7 +204,7 @@ func handleSpecialPlayback(c *gin.Context, itemInfo ItemInfo) bool {
 
 		// 本地媒体
 		path, _ := value.Attr("Path").String()
-		if strings.HasPrefix(path, config.C.Emby.LocalMediaRoot) {
+		if config.C.Emby.IsLocalMediaPath(path) {
 			logs.Info("本地媒体: %s, 回源处理", path)
 			flag = true
 		}

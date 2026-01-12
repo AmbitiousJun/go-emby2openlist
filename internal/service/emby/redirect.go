@@ -122,7 +122,7 @@ func Redirect2OpenlistLink(c *gin.Context) {
 	}
 
 	// 5 如果是本地地址, 回源处理
-	if strings.HasPrefix(embyPath, config.C.Emby.LocalMediaRoot) {
+	if config.C.Emby.IsLocalMediaPath(embyPath) {
 		logs.Info("本地媒体: %s, 回源处理", embyPath)
 		newUri := strings.Replace(c.Request.RequestURI, "stream", "original", 1)
 		c.Redirect(http.StatusTemporaryRedirect, newUri)
@@ -203,7 +203,7 @@ func ProxyOriginalResource(c *gin.Context) {
 	}
 
 	// 如果是本地媒体, 代理回源
-	if strings.HasPrefix(embyPath, config.C.Emby.LocalMediaRoot) {
+	if config.C.Emby.IsLocalMediaPath(embyPath) {
 		ProxyOrigin(c)
 		return
 	}
