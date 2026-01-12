@@ -7,7 +7,6 @@ import (
 
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/logs"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/maps"
-	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/randoms"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/strs"
 )
 
@@ -56,8 +55,8 @@ type Emby struct {
 	Strm *Strm `yaml:"strm"`
 	// DownloadStrategy 下载接口响应策略
 	DownloadStrategy DlStrategy `yaml:"download-strategy"`
-	// LocalMediaRoot 本地媒体根路径
-	LocalMediaRoot string `yaml:"local-media-root"`
+	// LocalMediaRoots 本地媒体根路径
+	LocalMediaRoots []string `yaml:"local-media-roots"`
 }
 
 func (e *Emby) Init() error {
@@ -98,12 +97,17 @@ func (e *Emby) Init() error {
 		return fmt.Errorf("emby.download-strategy 配置错误, 有效值: %v", maps.Keys(validDlStrategy))
 	}
 
-	// 如果没有配置, 生成一个随机前缀, 避免将网盘资源误识别为本地
-	if e.LocalMediaRoot = strings.TrimSpace(e.LocalMediaRoot); e.LocalMediaRoot == "" {
-		e.LocalMediaRoot = "/" + randoms.RandomHex(32)
-	}
-
 	return nil
+}
+
+// IsLocalMediaPath 判断路径是否为本地媒体路径
+func (e *Emby) IsLocalMediaPath(p string) bool {
+	for _, root := range e.LocalMediaRoots {
+		if strings.HasPrefix(p, root) {
+			return true
+		}
+	}
+	return false
 }
 
 // Strm strm 配置
