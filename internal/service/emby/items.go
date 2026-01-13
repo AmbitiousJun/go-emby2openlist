@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/config"
-	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/bytess"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/https"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/jsons"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/logs"
@@ -114,17 +113,29 @@ func RandomItemsWithLimit(c *gin.Context) {
 		return
 	}
 
-	c.Status(resp.StatusCode)
+	// 响应重排序
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if checkErr(c, err) {
+		return
+	}
+
+	var ih ItemsHolder
+	if err = json.Unmarshal(bodyBytes, &ih); checkErr(c, err) {
+		return
+	}
+	rand.Shuffle(len(ih.Items), func(i, j int) {
+		ih.Items[i], ih.Items[j] = ih.Items[j], ih.Items[i]
+	})
+
+	// 拷贝响应头 设置缓存标记
+	resp.Header.Del("Content-Length")
 	https.CloneHeader(c.Writer, resp.Header)
 	c.Header(cache.HeaderKeyExpired, cache.Duration(time.Hour*3))
 	c.Header(cache.HeaderKeySpace, ItemsCacheSpace)
 	c.Header(cache.HeaderKeySpaceKey, calcRandomItemsCacheKey(c))
 
-	c.Writer.WriteHeaderNow()
-
-	buf := bytess.CommonFixedBuffer()
-	defer buf.PutBack()
-	io.CopyBuffer(c.Writer, resp.Body, buf.Bytes())
+	// 写入响应体
+	c.JSON(resp.StatusCode, &ih)
 }
 
 // calcRandomItemsCacheKey 计算 random items 在缓存空间中的 key 值
