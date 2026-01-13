@@ -14,7 +14,6 @@ import (
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/config"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/https"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/jsons"
-	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/logs"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/urls"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/web/cache"
 
@@ -59,35 +58,20 @@ func ResortRandomItems(c *gin.Context) {
 	code := spaceCache.Code()
 	header := spaceCache.Headers()
 
-	// 响应客户端, 根据 err 自动判断
-	// 如果 err 不为空, 使用原始 bodyBytes
-	err = nil
 	var ih ItemsHolder
-	defer func() {
-		respBody, _ := json.Marshal(ih)
-		if err != nil {
-			logs.Error("随机排序接口非预期响应, err: %v, 返回原始响应", err)
-			respBody = bodyBytes
-		}
-
-		c.Status(code)
-		header.Set("Content-Length", strconv.Itoa(len(respBody)))
-		https.CloneHeader(c.Writer, header)
-		c.Writer.Write(respBody)
-	}()
 
 	// 对 item 内部结构不关心, 故使用原始的 json 序列化提高处理速度
-	if err = json.Unmarshal(bodyBytes, &ih); err != nil {
+	if err = json.Unmarshal(bodyBytes, &ih); checkErr(c, err) {
 		return
 	}
 
-	itemLen := len(ih.Items)
-	if itemLen == 0 {
-		return
-	}
-	rand.Shuffle(itemLen, func(i, j int) {
+	rand.Shuffle(len(ih.Items), func(i, j int) {
 		ih.Items[i], ih.Items[j] = ih.Items[j], ih.Items[i]
 	})
+
+	header.Del("Content-Length")
+	https.CloneHeader(c.Writer, header)
+	c.JSON(code, &ih)
 }
 
 // RandomItemsWithLimit 代理原始的随机列表接口
@@ -95,7 +79,9 @@ func RandomItemsWithLimit(c *gin.Context) {
 	u := c.Request.URL
 	u.Path = strings.TrimSuffix(u.Path, "/with_limit")
 	q := u.Query()
-	q.Set("Limit", "500")
+	if strings.TrimSpace(q.Get("Limit")) == "" {
+		q.Set("Limit", "500")
+	}
 	q.Del("SortOrder")
 	u.RawQuery = q.Encode()
 	embyHost := config.C.Emby.Host
