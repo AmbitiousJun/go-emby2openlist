@@ -1,6 +1,6 @@
 module github.com/AmbitiousJun/go-emby2openlist/v2
 
-go 1.24.2
+go 1.25.6
 
 require (
 	github.com/bogem/id3v2 v1.2.0
