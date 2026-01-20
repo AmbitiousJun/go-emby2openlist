@@ -33,6 +33,11 @@ func ProxySocket() func(*gin.Context) {
 
 		proxy = httputil.NewSingleHostReverseProxy(u)
 
+		// 禁用系统代理
+		transport := http.DefaultTransport.(*http.Transport).Clone()
+		transport.Proxy = nil
+		proxy.Transport = transport
+
 		proxy.Director = func(r *http.Request) {
 			r.URL.Scheme = u.Scheme
 			r.URL.Host = u.Host

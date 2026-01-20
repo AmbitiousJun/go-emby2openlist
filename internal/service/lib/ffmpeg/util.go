@@ -2,10 +2,13 @@ package ffmpeg
 
 import (
 	"fmt"
+	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/web/webproxy"
 )
 
 var (
@@ -124,5 +127,20 @@ func resolveTitle(raw string) string {
 		return strings.TrimSpace(titleTiReg.FindStringSubmatch(raw)[1])
 	}
 
+	return ""
+}
+
+// getProxyUrlByPath 判断 path 的协议类型 返回适配的代理地址
+func getProxyUrlByPath(path string) string {
+	u, err := url.Parse(path)
+	if err != nil {
+		return ""
+	}
+	if u.Scheme == "http" && webproxy.HttpUrl != nil {
+		return webproxy.HttpUrl.String()
+	}
+	if u.Scheme == "https" && webproxy.HttpsUrl != nil {
+		return webproxy.HttpsUrl.String()
+	}
 	return ""
 }
