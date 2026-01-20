@@ -8,9 +8,12 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/web/webproxy"
 )
 
 const (
@@ -32,6 +35,16 @@ func init() {
 			Dial: (&net.Dialer{Timeout: time.Minute}).Dial,
 			// 接收数据 5 分钟超时
 			ResponseHeaderTimeout: time.Minute * 5,
+			// 网络代理
+			Proxy: func(r *http.Request) (*url.URL, error) {
+				if r.URL.Scheme == "http" && webproxy.HttpUrl != nil {
+					return webproxy.HttpUrl, nil
+				}
+				if r.URL.Scheme == "https" && webproxy.HttpsUrl != nil {
+					return webproxy.HttpsUrl, nil
+				}
+				return nil, nil
+			},
 		},
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse

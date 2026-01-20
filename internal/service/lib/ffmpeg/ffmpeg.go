@@ -24,7 +24,7 @@ func InspectInfo(path string) (Info, error) {
 	mu.Lock()
 	defer mu.Unlock()
 
-	cmd := exec.Command(execPath, "-user_agent", constant.CommonDlUserAgent, "-threads", "1", "-i", path)
+	cmd := exec.Command(execPath, "-http_proxy", getProxyUrlByPath(path), "-user_agent", constant.CommonDlUserAgent, "-threads", "1", "-i", path)
 
 	outputBytes, _ := cmd.CombinedOutput()
 	if bytes.Contains(outputBytes, []byte(OpenError)) {
@@ -47,7 +47,7 @@ func InspectMusic(path string) (Music, error) {
 	mu.Lock()
 	defer mu.Unlock()
 
-	cmd := exec.Command(execPath, "-user_agent", constant.CommonDlUserAgent, "-threads", "1", "-i", path)
+	cmd := exec.Command(execPath, "-http_proxy", getProxyUrlByPath(path), "-user_agent", constant.CommonDlUserAgent, "-threads", "1", "-i", path)
 	outputBytes, _ := cmd.CombinedOutput()
 
 	if bytes.Contains(outputBytes, []byte(OpenError)) {
@@ -138,7 +138,7 @@ func ExtractMusicCover(path string) ([]byte, error) {
 	mu.Lock()
 	defer mu.Unlock()
 
-	cmd := exec.Command(execPath, "-user_agent", constant.CommonDlUserAgent, "-threads", "1", "-i", path, "-an", "-vframes", "1", "-f", "image2", "-vcodec", "mjpeg", "pipe:1")
+	cmd := exec.Command(execPath, "-http_proxy", getProxyUrlByPath(path), "-user_agent", constant.CommonDlUserAgent, "-threads", "1", "-i", path, "-an", "-vframes", "1", "-f", "image2", "-vcodec", "mjpeg", "pipe:1")
 
 	outputBytes, err := cmd.Output()
 	if err != nil {
