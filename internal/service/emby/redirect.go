@@ -125,6 +125,7 @@ func Redirect2OpenlistLink(c *gin.Context) {
 	if config.C.Emby.IsLocalMediaPath(embyPath) {
 		logs.Info("本地媒体: %s, 回源处理", embyPath)
 		newUri := strings.Replace(c.Request.RequestURI, "stream", "original", 1)
+		newUri = strings.Replace(newUri, "universal", "original", 1)
 		c.Redirect(http.StatusTemporaryRedirect, newUri)
 		return
 	}
