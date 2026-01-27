@@ -14,6 +14,7 @@ import (
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/config"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/https"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/jsons"
+	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/logs"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/urls"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/web/cache"
 
@@ -244,6 +245,11 @@ func ProxyLatestItems(c *gin.Context) {
 	}
 	resJson, err := jsons.Read(resp.Body)
 	if checkErr(c, err) {
+		return
+	}
+	if resp.Header.Get("Content-Length") == "0" {
+		logs.Error("检测到空响应体了, 触发重定向")
+		c.Redirect(http.StatusTemporaryRedirect, c.Request.RequestURI)
 		return
 	}
 
