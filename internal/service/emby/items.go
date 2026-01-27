@@ -248,7 +248,6 @@ func ProxyLatestItems(c *gin.Context) {
 		return
 	}
 	if resp.Header.Get("Content-Length") == "0" {
-		logs.Error("检测到空响应体了, 触发重定向")
 		c.Redirect(http.StatusTemporaryRedirect, c.Request.RequestURI)
 		return
 	}
