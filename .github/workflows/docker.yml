@@ -1,9 +1,12 @@
 name: Build and Push Docker Images
 
 on:
-  push:
-    tags:
-      - 'v*.*.*'  # 仅在推送符合这个模式的标签时触发
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Docker image tag (e.g. v1.2.3)'
+        required: true
+        default: latest
 
 jobs:
   build:
