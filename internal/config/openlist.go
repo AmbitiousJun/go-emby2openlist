@@ -164,16 +164,32 @@ func (ltg *LocalTreeGen) IsMusic(container string) bool {
 }
 
 // IsAllowed 判断一个容器是否被允许处理
-// 如果 allowContainers 为空,则允许所有容器
-// 如果 allowContainers 不为空,则只允许在列表中的容器
+// 逻辑规则:
+// 1. strm-containers, virtual-containers, music-containers 中的容器自动被允许
+// 2. allow-containers 中明确指定的容器也被允许
+// 3. 如果以上都未配置,则拒绝所有容器(避免意外下载所有文件)
 func (ltg *LocalTreeGen) IsAllowed(container string) bool {
-	// 如果没有配置允许列表,则允许所有
-	if len(ltg.allowContainers) == 0 {
+	container = strings.ToLower(container)
+	
+	// 检查是否在 strm/virtual/music 容器中
+	if _, ok := ltg.strmContainers[container]; ok {
 		return true
 	}
-	container = strings.ToLower(container)
-	_, ok := ltg.allowContainers[container]
-	return ok
+	if _, ok := ltg.virtualContainers[container]; ok {
+		return true
+	}
+	if _, ok := ltg.musicContainers[container]; ok {
+		return true
+	}
+	
+	// 检查是否在额外允许列表中
+	if len(ltg.allowContainers) > 0 {
+		_, ok := ltg.allowContainers[container]
+		return ok
+	}
+	
+	// 如果都没有配置,则拒绝所有(安全起见)
+	return false
 }
 
 // IsValidPrefix 判断一个 openlist 路径是否在扫描前缀的范围中
