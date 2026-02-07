@@ -1,12 +1,9 @@
 name: Build and Push Docker Images
 
 on:
-  workflow_dispatch:
-    inputs:
-      image_tag:
-        description: 'Docker image tag (e.g. v1.2.3)'
-        required: true
-        default: latest
+  push:
+    tags:
+      - 'v*.*.*'  # 仅在推送符合这个模式的标签时触发
 
 jobs:
   build:
@@ -21,7 +18,7 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: zhazhatao0208
+          username: ambitiousjun
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Set up QEMU
@@ -34,5 +31,5 @@ jobs:
           platforms: linux/386,linux/arm/v7,linux/amd64,linux/arm64
           push: true
           tags: |
-            zhazhatao0208/go-emby2openlist:${{ github.ref_name }}
-            zhazhatao0208/go-emby2openlist:latest
+            ambitiousjun/go-emby2openlist:${{ github.ref_name }}
+            ambitiousjun/go-emby2openlist:latest
