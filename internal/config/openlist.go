@@ -130,10 +130,13 @@ func (ltg *LocalTreeGen) Init() error {
 		ltg.musicContainers[strings.ToLower(s)] = struct{}{}
 	}
 
-	ss = strings.Split(strings.TrimSpace(ltg.IgnoreContainers), ",")
-	ltg.ignoreContainers = make(map[string]struct{}, len(ss))
+	ss = strings.Split(strings.TrimSpace(ltg.AllowContainers), ",")
+	ltg.allowContainers = make(map[string]struct{}, len(ss))
 	for _, s := range ss {
-		ltg.ignoreContainers[strings.ToLower(s)] = struct{}{}
+		s = strings.TrimSpace(s)
+		if s != "" {
+			ltg.allowContainers[strings.ToLower(s)] = struct{}{}
+		}
 	}
 
 	return nil
