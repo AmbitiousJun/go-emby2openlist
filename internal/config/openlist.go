@@ -171,7 +171,14 @@ func (ltg *LocalTreeGen) IsAllowed(container string) bool {
 	if len(ltg.allowContainers) == 0 {
 		return true
 	}
+
 	container = strings.ToLower(container)
+
+	// 允许特殊容器
+	if ltg.IsStrm(container) || ltg.IsVirtual(container) || ltg.IsMusic(container) {
+		return true
+	}
+
 	_, ok := ltg.allowContainers[container]
 	return ok
 }
