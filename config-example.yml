@@ -75,7 +75,7 @@ openlist:
     # 建议配置为 openlist 数据量的 3/4 左右
     auto-remove-max-count: 6000
     refresh-interval: 10                     # 与远程同步刷新的间隔, 单位: 分钟
-        scan-prefixes:                           # 指定要扫描的目录树前缀, 不指定则全量扫描
+    scan-prefixes:                           # 指定要扫描的目录树前缀, 不指定则全量扫描
       - /电影/G
       - /电视剧
     # 允许处理的容器, 为空则允许所有容器
