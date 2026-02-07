@@ -80,7 +80,7 @@ openlist:
       - /电视剧
     # 允许处理的容器, 为空则允许所有容器
     # 只有指定的容器会被处理, 其他容器会被忽略, 避免触发源文件下载到本地
-    allow-containers: nfo,ass,srt
+    allow-containers: ass,srt，sub
     # 同步线程数
     threads: 8
 
