@@ -275,7 +275,7 @@ func (s *Synchronizer) handleSyncTasks(okTaskChan chan<- FileTask) {
 				if !cfg.IsValidPrefix(task.Path) {
 					continue
 				}
-				if !task.IsDir && cfg.IsIgnore(task.Container) {
+				if !task.IsDir && !cfg.IsAllowed(task.Container) {
 					continue
 				}
 

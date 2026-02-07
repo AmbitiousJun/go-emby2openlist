@@ -54,8 +54,8 @@ type LocalTreeGen struct {
 	// ScanPrefixes 指定扫描前缀
 	ScanPrefixes []string `yaml:"scan-prefixes"`
 
-	// IgnoreContainers 忽略指定的容器
-	IgnoreContainers string `yaml:"ignore-containers"`
+	// AllowContainers 允许处理的容器,为空则允许所有
+	AllowContainers string `yaml:"allow-containers"`
 
 	// Threads 同步线程数
 	Threads int `yaml:"threads"`
@@ -69,8 +69,8 @@ type LocalTreeGen struct {
 	// musicContainers 音乐媒体容器集合 便于快速查询
 	musicContainers map[string]struct{}
 
-	// ignoreContainers 忽略指定容器集合 便于快速查询
-	ignoreContainers map[string]struct{}
+	// allowContainers 允许处理的容器集合 便于快速查询
+	allowContainers map[string]struct{}
 }
 
 // Init 配置初始化
@@ -130,10 +130,13 @@ func (ltg *LocalTreeGen) Init() error {
 		ltg.musicContainers[strings.ToLower(s)] = struct{}{}
 	}
 
-	ss = strings.Split(strings.TrimSpace(ltg.IgnoreContainers), ",")
-	ltg.ignoreContainers = make(map[string]struct{}, len(ss))
+	ss = strings.Split(strings.TrimSpace(ltg.AllowContainers), ",")
+	ltg.allowContainers = make(map[string]struct{}, len(ss))
 	for _, s := range ss {
-		ltg.ignoreContainers[strings.ToLower(s)] = struct{}{}
+		s = strings.TrimSpace(s)
+		if s != "" {
+			ltg.allowContainers[strings.ToLower(s)] = struct{}{}
+		}
 	}
 
 	return nil
@@ -160,10 +163,16 @@ func (ltg *LocalTreeGen) IsMusic(container string) bool {
 	return ok
 }
 
-// IsIgnore 判断一个容器是否需要被忽略
-func (ltg *LocalTreeGen) IsIgnore(container string) bool {
+// IsAllowed 判断一个容器是否被允许处理
+// 如果 allowContainers 为空,则允许所有容器
+// 如果 allowContainers 不为空,则只允许在列表中的容器
+func (ltg *LocalTreeGen) IsAllowed(container string) bool {
+	// 如果没有配置允许列表,则允许所有
+	if len(ltg.allowContainers) == 0 {
+		return true
+	}
 	container = strings.ToLower(container)
-	_, ok := ltg.ignoreContainers[container]
+	_, ok := ltg.allowContainers[container]
 	return ok
 }
 

@@ -78,8 +78,9 @@ openlist:
     scan-prefixes:                           # 指定要扫描的目录树前缀, 不指定则全量扫描
       - /电影/G
       - /电视剧
-    # 忽略指定容器, 避免触发源文件下载到本地
-    ignore-containers: jpg,jpeg,png,txt,nfo,md
+    # 允许处理的容器, 为空则允许所有容器
+    # 只有指定的容器会被处理, 其他容器会被忽略, 避免触发源文件下载到本地
+    allow-containers: ass,srt,sub
     # 同步线程数
     threads: 8
 
