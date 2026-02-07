@@ -163,10 +163,16 @@ func (ltg *LocalTreeGen) IsMusic(container string) bool {
 	return ok
 }
 
-// IsIgnore 判断一个容器是否需要被忽略
-func (ltg *LocalTreeGen) IsIgnore(container string) bool {
+// IsAllowed 判断一个容器是否被允许处理
+// 如果 allowContainers 为空,则允许所有容器
+// 如果 allowContainers 不为空,则只允许在列表中的容器
+func (ltg *LocalTreeGen) IsAllowed(container string) bool {
+	// 如果没有配置允许列表,则允许所有
+	if len(ltg.allowContainers) == 0 {
+		return true
+	}
 	container = strings.ToLower(container)
-	_, ok := ltg.ignoreContainers[container]
+	_, ok := ltg.allowContainers[container]
 	return ok
 }
 
