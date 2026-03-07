@@ -126,6 +126,7 @@ func RandomItemsWithLimit(c *gin.Context) {
 
 // calcRandomItemsCacheKey 计算 random items 在缓存空间中的 key 值
 func calcRandomItemsCacheKey(c *gin.Context) string {
+	itemInfo, _ := resolveItemInfo(c, RouteItems)
 	return c.Query("IncludeItemTypes") +
 		c.Query("Recursive") +
 		c.Query("Fields") +
@@ -134,7 +135,8 @@ func calcRandomItemsCacheKey(c *gin.Context) string {
 		c.Query("IsFavorite") +
 		c.Query("IsFolder") +
 		c.Query("ProjectToMedia") +
-		c.Query("ParentId")
+		c.Query("ParentId") +
+		itemInfo.ApiKey
 }
 
 // ProxyAddItemsPreviewInfo 代理 Items 接口, 并附带上转码版本信息
