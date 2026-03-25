@@ -3,6 +3,7 @@ package emby
 import (
 	"io"
 	"net/http"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"sync"
@@ -48,6 +49,15 @@ const UnauthorizedResp = "Access token is invalid or expired."
 // AuthorizationTokenExtractReg 匹配 Authorization 头中 Token 字段
 var AuthorizationTokenExtractReg = regexp.MustCompile(`(?i)token="([^"]+)"`)
 
+// subtitleExt 记录字幕文件扩展名, 不对字幕请求进行拦截
+var subtitleExt = map[string]struct{}{
+	".ass": {},
+	".srt": {},
+	".sub": {},
+	".ssa": {},
+	".vtt": {},
+}
+
 // ApiKeyChecker 对指定的 api 进行鉴权
 //
 // 该中间件会将客户端传递的 api_key 发送给 emby 服务器, 如果 emby 返回 401 异常
@@ -83,6 +93,16 @@ func ApiKeyChecker() gin.HandlerFunc {
 				break
 			}
 		}
+
+		// 排除字幕文件
+		ext := strings.ToLower(filepath.Ext(c.Request.RequestURI))
+		if queryStartIdx := strings.Index(ext, "?"); queryStartIdx != -1 {
+			ext = ext[:queryStartIdx]
+		}
+		if _, ok := subtitleExt[ext]; ok {
+			needCheck = false
+		}
+
 		if !needCheck {
 			return
 		}
