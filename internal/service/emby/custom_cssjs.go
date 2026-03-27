@@ -169,7 +169,22 @@ func ProxyCustomJs(c *gin.Context) {
 
 	contentBuilder := strings.Builder{}
 	for _, script := range customJsList {
-		contentBuilder.WriteString(fmt.Sprintf("(function(){ %s })();\n", script))
+		contentBuilder.WriteString("(function() {\n")
+		contentBuilder.WriteString("  // 等待 Emby 环境和 apiclient 准备就绪后执行脚本\n")
+		contentBuilder.WriteString("  function waitForEmby() {\n")
+		contentBuilder.WriteString("    if (typeof ApiClient !== 'undefined' && ApiClient !== null) {\n")
+		contentBuilder.WriteString("      try {\n")
+		contentBuilder.WriteString("        " + script + "\n")
+		contentBuilder.WriteString("      } catch (e) {\n")
+		contentBuilder.WriteString("        console.error('Custom script error:', e);\n")
+		contentBuilder.WriteString("      }\n")
+		contentBuilder.WriteString("    } else {\n")
+		contentBuilder.WriteString("      setTimeout(waitForEmby, 100);\n")
+		contentBuilder.WriteString("    }\n")
+		contentBuilder.WriteString("  }\n")
+		contentBuilder.WriteString("  // 启动等待\n")
+		contentBuilder.WriteString("  waitForEmby();\n")
+		contentBuilder.WriteString("})();\n\n")
 	}
 	contentBytes := []byte(contentBuilder.String())
 
