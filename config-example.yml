@@ -38,6 +38,11 @@ emby:
   local-media-roots:
     - /data/local
     - /data/other
+  # 自定义 css js 配置
+  custom-css-js:
+    # 调试模式开关
+    # 开启时, 每次访问 emby 首页都会重新加载一次本地脚本文件
+    debug-mode: false
 
 # openlist 访问配置
 openlist:

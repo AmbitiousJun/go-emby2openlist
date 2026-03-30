@@ -57,6 +57,8 @@ type Emby struct {
 	DownloadStrategy DlStrategy `yaml:"download-strategy"`
 	// LocalMediaRoots 本地媒体根路径
 	LocalMediaRoots []string `yaml:"local-media-roots"`
+	// CustomCssJs 自定义 css js 配置
+	CustomCssJs *CustomCssJs `yaml:"custom-css-js"`
 }
 
 func (e *Emby) Init() error {
@@ -95,6 +97,13 @@ func (e *Emby) Init() error {
 	e.DownloadStrategy = DlStrategy(strings.TrimSpace(string(e.DownloadStrategy)))
 	if _, ok := validDlStrategy[e.DownloadStrategy]; !ok {
 		return fmt.Errorf("emby.download-strategy 配置错误, 有效值: %v", maps.Keys(validDlStrategy))
+	}
+
+	if e.CustomCssJs == nil {
+		e.CustomCssJs = new(CustomCssJs)
+	}
+	if err := e.CustomCssJs.Init(); err != nil {
+		return fmt.Errorf("emby.custom-css-js 配置错误: %v", err)
 	}
 
 	return nil
@@ -146,4 +155,16 @@ func (s *Strm) MapPath(path string) string {
 		}
 	}
 	return path
+}
+
+// CustomCssJs 自定义 css js 配置
+type CustomCssJs struct {
+
+	// DebugMode 调试模式开关
+	DebugMode bool `yaml:"debug-mode"`
+}
+
+// Init 配置初始化
+func (c *CustomCssJs) Init() error {
+	return nil
 }
