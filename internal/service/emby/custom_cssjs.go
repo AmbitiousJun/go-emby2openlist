@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/config"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/constant"
@@ -18,14 +19,52 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-// customJsList 首次访问时, 将所有自定义脚本预加载在内存中
-var customJsList []string
+const (
 
-// customCssList 首次访问时, 将所有自定义样式预加载在内存中
-var customCssList []string
+	// customUpdateInterval 内存缓存刷新间隔 防止频繁刷新
+	customUpdateInterval = 5_000
+)
+
+var (
+	// customJsList 所有自定义脚本预加载在内存中
+	customJsList []string
+
+	// customCssList 所有自定义样式预加载在内存中
+	customCssList []string
+
+	// customLastUpdateTimeMillis 内存缓存最后一次更新的时间戳c
+	customLastUpdateTimeMillis int64
+
+	// customCacheOpMutex 维护内存缓存更新同步
+	customCacheOpMutex sync.Mutex
+)
 
 // loadAllCustomCssJs 加载所有自定义脚本
-var loadAllCustomCssJs = sync.OnceFunc(func() {
+// 当内存中已经存在自定义脚本缓存时, 不进行任何操作
+// 可通过 forceRefresh 强制刷新缓存
+func loadAllCustomCssJs(forceRefresh bool) {
+
+	customCacheOpMutex.Lock()
+	noUpdate := !forceRefresh && (len(customCssList) > 0 || len(customJsList) > 0)
+
+	// 间隔太短 不允许刷新
+	if time.Now().UnixMilli()-customLastUpdateTimeMillis < customUpdateInterval {
+		noUpdate = true
+	}
+
+	defer func() {
+		if !noUpdate {
+			customLastUpdateTimeMillis = time.Now().UnixMilli()
+		}
+		customCacheOpMutex.Unlock()
+	}()
+
+	if noUpdate {
+		return
+	}
+
+	// loadRemoteContent 尝试将 originBytes 中的内容解析为 url 并解析远程路径下的文本内容
+	// 当 originBytes 中记录的不是一个合法的 url 时, 返回 originBytes 本身
 	loadRemoteContent := func(originBytes []byte) ([]byte, error) {
 		if len(originBytes) == 0 {
 			return []byte{}, nil
@@ -55,6 +94,7 @@ var loadAllCustomCssJs = sync.OnceFunc(func() {
 		return bytes, nil
 	}
 
+	// loadFiles 解析路径 fp 下的后缀为 ext 的文件列表，将它们读取成字符串切片后返回
 	loadFiles := func(fp, ext, successLogPrefix string) ([]string, error) {
 		if err := os.MkdirAll(fp, os.ModePerm); err != nil {
 			return nil, fmt.Errorf("目录初始化失败: %s, err: %v", fp, err)
@@ -128,7 +168,7 @@ var loadAllCustomCssJs = sync.OnceFunc(func() {
 		return
 	}
 	customCssList = cssList
-})
+}
 
 // ProxyIndexHtml 代理 index.html 注入自定义脚本样式文件
 func ProxyIndexHtml(c *gin.Context) {
@@ -165,7 +205,7 @@ func ProxyIndexHtml(c *gin.Context) {
 
 // ProxyCustomJs 代理自定义脚本
 func ProxyCustomJs(c *gin.Context) {
-	loadAllCustomCssJs()
+	loadAllCustomCssJs(config.C.Emby.CustomCssJs.DebugMode)
 
 	contentBuilder := strings.Builder{}
 	for _, script := range customJsList {
@@ -200,11 +240,11 @@ func ProxyCustomJs(c *gin.Context) {
 
 // ProxyCustomCss 代理自定义样式表
 func ProxyCustomCss(c *gin.Context) {
-	loadAllCustomCssJs()
+	loadAllCustomCssJs(config.C.Emby.CustomCssJs.DebugMode)
 
 	contentBuilder := strings.Builder{}
 	for _, style := range customCssList {
-		contentBuilder.WriteString(fmt.Sprintf("%s\n\n\n", style))
+		fmt.Fprintf(&contentBuilder, "%s\n\n\n", style)
 	}
 	contentBytes := []byte(contentBuilder.String())
 
