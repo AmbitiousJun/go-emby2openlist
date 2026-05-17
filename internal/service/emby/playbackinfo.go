@@ -87,7 +87,7 @@ func TransferPlaybackInfo(c *gin.Context) {
 		return
 	}
 
-	var haveReturned = errors.New("have returned")
+	haveReturned := errors.New("have returned")
 	resChans := make([]chan []*jsons.Item, 0, mediaSources.Len())
 	err = mediaSources.RangeArr(func(_ int, source *jsons.Item) error {
 		simplifyMediaName(source)
@@ -138,6 +138,8 @@ func TransferPlaybackInfo(c *gin.Context) {
 		// 如果是远程资源, 不获取转码地址
 		ir, _ := source.Attr("IsRemote").Bool()
 		if ir {
+			// 通知 emby 解析远程媒体信息
+			go sendOpenStreamPlaybackInfoReqToOrigin(itemInfo)
 			return nil
 		}
 

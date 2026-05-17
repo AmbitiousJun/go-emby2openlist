@@ -547,3 +547,24 @@ func getAllPreviewTemplateIds() []string {
 	}
 	return res
 }
+
+// sendOpenStreamPlaybackInfoReqToOrigin 发送打开流的 PlaybackInfo 请求到 Emby 源服务器，
+// 让 emby 解析媒体信息
+func sendOpenStreamPlaybackInfoReqToOrigin(itemInfo ItemInfo) {
+	originUrl, err := url.Parse(config.C.Emby.Host + itemInfo.PlaybackInfoUri)
+	if err != nil {
+		return
+	}
+	q := originUrl.Query()
+	q.Set("IsPlayback", "true")
+	q.Set("AutoOpenLiveStream", "true")
+	originUrl.RawQuery = q.Encode()
+	resp, err := https.
+		Post(originUrl.String()).
+		Body(io.NopCloser(bytes.NewBufferString(PlaybackCommonPayload))).
+		Do()
+	if err != nil {
+		return
+	}
+	resp.Body.Close()
+}
