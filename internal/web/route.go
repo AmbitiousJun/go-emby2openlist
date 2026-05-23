@@ -4,6 +4,7 @@ import (
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/constant"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/service/emby"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/service/m3u8"
+	openlist_localtree "github.com/AmbitiousJun/go-emby2openlist/v2/internal/service/openlist/localtree"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/logs"
 
 	"github.com/gin-gonic/gin"
@@ -76,6 +77,9 @@ func initRulePatterns() {
 		{constant.Route_CustomJs, emby.ProxyCustomJs},
 		// 响应自定义样式
 		{constant.Route_CustomCss, emby.ProxyCustomCss},
+
+		// 手动更新本地目录树
+		{constant.Route_UpdateOpenlistLocalTree, openlist_localtree.UpdateManually},
 
 		// 根路径重定向到首页
 		{constant.Reg_Root, emby.ProxyRoot},

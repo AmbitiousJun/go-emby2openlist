@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -49,6 +50,8 @@ type Synchronizer struct {
 
 	// hasScanFinish 当前已处理完成的任务数
 	hasScanFinish int64
+
+	sync.Mutex
 }
 
 // NewSynchronizer 指定目录树根路径 初始化一个同步器
@@ -61,8 +64,13 @@ func NewSynchronizer(baseDir string, pageSize int) *Synchronizer {
 }
 
 // Sync 触发一次同步操作
-func (s *Synchronizer) Sync() (total, added, deleted int, err error) {
-	if err := s.InitSnapshot(); err != nil {
+func (s *Synchronizer) Sync(prefix string) (total, added, deleted int, err error) {
+	if !s.TryLock() {
+		return 0, 0, 0, fmt.Errorf("当前正在执行同步任务")
+	}
+	defer s.Unlock()
+
+	if err := s.InitSnapshot(prefix); err != nil {
 		return 0, 0, 0, fmt.Errorf("初始化快照异常: %w", err)
 	}
 
@@ -75,7 +83,7 @@ func (s *Synchronizer) Sync() (total, added, deleted int, err error) {
 
 	// 读取根目录放置到任务通道中
 	s.activeTaskCount = 0
-	if err := s.walkDir2SyncTasks("/"); err != nil {
+	if err := s.walkDir2SyncTasks(prefix); err != nil {
 		return 0, 0, 0, fmt.Errorf("获取 openlist 根目录异常: %w", err)
 	}
 
@@ -109,29 +117,35 @@ func (s *Synchronizer) Sync() (total, added, deleted int, err error) {
 }
 
 // InitSnapshot 扫描本地磁盘 初始化快照
-func (s *Synchronizer) InitSnapshot() error {
+func (s *Synchronizer) InitSnapshot(prefix string) error {
 	ss := NewSnapshot()
 
+	// 只扫描指定前缀的目录
+	scanDir := s.baseDir
+	if prefix != "" && prefix != "/" {
+		scanDir = filepath.Join(s.baseDir, strings.TrimPrefix(prefix, "/"))
+	}
+
 	// 检查根目录
-	stat, err := os.Stat(s.baseDir)
+	stat, err := os.Stat(scanDir)
 	if err != nil {
 		if !os.IsNotExist(err) {
 			return fmt.Errorf("根目录扫描异常: %w", err)
 		}
-		if err = os.MkdirAll(s.baseDir, os.ModePerm); err != nil {
+		if err = os.MkdirAll(scanDir, os.ModePerm); err != nil {
 			return fmt.Errorf("初始化根目录异常: %w", err)
 		}
 	} else if !stat.IsDir() {
-		return fmt.Errorf("根目录被占用: [%s]", s.baseDir)
+		return fmt.Errorf("根目录被占用: [%s]", scanDir)
 	}
 
 	// 递归扫描目录树
-	err = filepath.Walk(s.baseDir, func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(scanDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return fmt.Errorf("无法访问路径 %s: %w", path, err)
 		}
 
-		// 获取相对路径
+		// 获取相对于目录树根路径的相对路径
 		relPath, err := filepath.Rel(s.baseDir, path)
 		if err != nil {
 			return fmt.Errorf("无法获取相对路径 %s: %w", path, err)
@@ -150,7 +164,12 @@ func (s *Synchronizer) InitSnapshot() error {
 			return nil
 		}
 
-		ss.Put("/"+relPath, info.IsDir())
+		sKey := "/" + relPath
+		if sKey == prefix {
+			return nil
+		}
+		ss.Put(sKey, info.IsDir())
+
 		return nil
 	})
 	if err != nil {
@@ -267,9 +286,6 @@ func (s *Synchronizer) handleSyncTasks(okTaskChan chan<- FileTask) {
 			case <-s.ctx.Done():
 				return s.ctx.Err()
 			default:
-				// 更新同步进度
-				defer atomic.AddInt64(&s.hasScanFinish, 1)
-
 				// 根据用户配置忽略特定文件和目录
 				cfg := config.C.Openlist.LocalTreeGen
 				if !cfg.IsValidPrefix(task.Path) {
@@ -292,6 +308,9 @@ func (s *Synchronizer) handleSyncTasks(okTaskChan chan<- FileTask) {
 
 				// 当前任务写入 okTaskChan
 				okTaskChan <- task
+
+				// 更新同步进度
+				atomic.AddInt64(&s.hasScanFinish, 1)
 			}
 		}
 		return nil
