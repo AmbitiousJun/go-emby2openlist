@@ -38,12 +38,19 @@ const (
 	Reg_VideoModWebDefined = `(?i)^/web/modules/htmlvideoplayer/plugin.js`
 	Reg_Proxy2Origin       = `^/$|(?i)^.*(/web|/users|/artists|/genres|/similar|/shows|/system|/remote|/scheduledtasks)`
 
-	Reg_Root        = `(?i)^/$`
-	Reg_IndexHtml   = `(?i)^/web/index\.html`
-	Route_CustomJs  = `/ge2o/custom.js`
-	Route_CustomCss = `/ge2o/custom.css`
+	Reg_Root      = `(?i)^/$`
+	Reg_IndexHtml = `(?i)^/web/index\.html`
+
+	Reg_OpenlistLocalTreeUpdatePrefix = `^(/[^/\\]+)+$`
 
 	Reg_All = `.*`
+)
+
+const (
+	Route_SelfBase                = "/ge2o"
+	Route_CustomJs                = Route_SelfBase + "/custom.js"
+	Route_CustomCss               = Route_SelfBase + "/custom.css"
+	Route_UpdateOpenlistLocalTree = Route_SelfBase + "/openlist/local_tree/update"
 )
 
 const (
