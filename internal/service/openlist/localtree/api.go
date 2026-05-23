@@ -19,40 +19,40 @@ var updatePrefixValidateRegex = regexp.MustCompile(constant.Reg_OpenlistLocalTre
 // UpdateManually 手动跟新本地目录树
 func UpdateManually(c *gin.Context) {
 	if c.Request.Method != http.MethodPost {
-		c.String(http.StatusNotFound, "not found")
+		c.String(http.StatusNotFound, "404 not found")
 		return
 	}
 
 	// 获取本地密钥
 	localSecret := config.C.Openlist.LocalTreeGen.ApiSecret
 	if localSecret = strings.TrimSpace(localSecret); localSecret == "" {
-		c.JSON(http.StatusBadRequest, model.Response{Message: "请先配置本地密钥"})
+		c.JSON(http.StatusOK, model.Response{Message: "请先配置本地密钥"})
 		return
 	}
 
 	// 确保模块已经初始化完毕
 	if synchronizer == nil {
-		c.JSON(http.StatusBadRequest, model.Response{Message: "请先启用本地目录树模块"})
+		c.JSON(http.StatusOK, model.Response{Message: "请先启用本地目录树模块"})
 		return
 	}
 
 	// 转换请求体
 	var reqData UpdateRequest
 	if err := c.ShouldBindJSON(&reqData); err != nil {
-		c.JSON(http.StatusBadRequest, model.Response{Message: "请求参数错误"})
+		c.JSON(http.StatusOK, model.Response{Message: "请求参数错误"})
 		return
 	}
 
 	// 校验本地密钥
 	if reqData.Secret != localSecret {
-		c.JSON(http.StatusBadRequest, model.Response{Message: "密钥错误"})
+		c.JSON(http.StatusOK, model.Response{Message: "密钥错误"})
 		return
 	}
 
 	// 校验路径
 	if reqData.Prefix = strings.TrimSpace(reqData.Prefix); reqData.Prefix != "" {
 		if !updatePrefixValidateRegex.MatchString(reqData.Prefix) {
-			c.JSON(http.StatusBadRequest, model.Response{Message: "无效的路径前缀"})
+			c.JSON(http.StatusOK, model.Response{Message: "无效的路径前缀"})
 			return
 		}
 	}
@@ -69,7 +69,7 @@ func UpdateManually(c *gin.Context) {
 	timeoutTimer := time.NewTimer(time.Second * 2)
 	select {
 	case err := <-errChan:
-		c.JSON(http.StatusInternalServerError, model.Response{Message: "同步失败: " + err.Error()})
+		c.JSON(http.StatusOK, model.Response{Message: "同步失败: " + err.Error()})
 	case <-timeoutTimer.C:
 		msg := "调用成功, 开始全量扫描, 详情请查看容器日志..."
 		if reqData.Prefix != "" {
