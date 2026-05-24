@@ -24,7 +24,7 @@ func UpdateManually(c *gin.Context) {
 	}
 
 	// 获取本地密钥
-	localSecret := config.C.Openlist.LocalTreeGen.ApiSecret
+	localSecret := config.C.Ge2o.ApiSecret
 	if localSecret = strings.TrimSpace(localSecret); localSecret == "" {
 		c.JSON(http.StatusOK, model.Response{Message: "请先配置本地密钥"})
 		return
@@ -60,25 +60,32 @@ func UpdateManually(c *gin.Context) {
 	// 执行同步
 	errChan := make(chan error)
 	go func() {
-		if err := doSync(synchronizer, reqData.Prefix); err != nil {
+		err := doSync(synchronizer, reqData.Prefix)
+		errChan <- err
+		if err != nil {
 			logf(colors.Red, "同步失败: %v", err)
-			errChan <- err
 		}
 	}()
 
 	timeoutTimer := time.NewTimer(time.Second * 2)
+	var err error
 	select {
-	case err := <-errChan:
-		c.JSON(http.StatusOK, model.Response{Message: "同步失败: " + err.Error()})
+	case err = <-errChan:
 	case <-timeoutTimer.C:
-		msg := "调用成功, 开始全量扫描, 详情请查看容器日志..."
-		if reqData.Prefix != "" {
-			msg = "调用成功, 扫描路径: [" + reqData.Prefix + "], 详情请查看容器日志..."
-		}
-		c.JSON(http.StatusOK, model.Response{
-			Success: true,
-			Message: msg,
-		})
 	}
+
+	if err != nil {
+		c.JSON(http.StatusOK, model.Response{Message: "同步失败: " + err.Error()})
+		return
+	}
+
+	msg := "调用成功, 开始全量扫描, 详情请查看容器日志..."
+	if reqData.Prefix != "" {
+		msg = "调用成功, 扫描路径: [" + reqData.Prefix + "], 详情请查看容器日志..."
+	}
+	c.JSON(http.StatusOK, model.Response{
+		Success: true,
+		Message: msg,
+	})
 
 }

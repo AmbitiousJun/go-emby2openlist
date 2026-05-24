@@ -25,6 +25,8 @@ type Config struct {
 	Ssl *Ssl `yaml:"ssl"`
 	// Log 日志相关配置
 	Log *Log `yaml:"log"`
+	// Ge2o 程序其他配置
+	Ge2o *Ge2o `yaml:"ge2o"`
 }
 
 // C 全局唯一配置对象
