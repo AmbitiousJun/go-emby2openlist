@@ -24,7 +24,7 @@ func UpdateManually(c *gin.Context) {
 	}
 
 	// 获取本地密钥
-	localSecret := config.C.Openlist.LocalTreeGen.ApiSecret
+	localSecret := config.C.Ge2o.ApiSecret
 	if localSecret = strings.TrimSpace(localSecret); localSecret == "" {
 		c.JSON(http.StatusOK, model.Response{Message: "请先配置本地密钥"})
 		return

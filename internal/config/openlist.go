@@ -60,9 +60,6 @@ type LocalTreeGen struct {
 	// Threads 同步线程数
 	Threads int `yaml:"threads"`
 
-	// ApiSecret 接口本地密钥
-	ApiSecret string `yaml:"api-secret"`
-
 	// virtualContainers 虚拟媒体容器集合 便于快速查询
 	virtualContainers map[string]struct{}
 

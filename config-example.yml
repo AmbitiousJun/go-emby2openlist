@@ -88,8 +88,6 @@ openlist:
     allow-containers: ass,srt,sub
     # 同步线程数
     threads: 8
-    # api 本地密钥, 必须配置后才能启用接口
-    api-secret: my-secret
 
 # 该配置项目前只对阿里云盘生效, 如果你使用的是其他网盘, 请直接将 enable 设置为 false
 video-preview:
@@ -142,3 +140,7 @@ log:
   # 如果你的终端不支持彩色输出, 并且多出来一些乱码字符
   # 可以将该项设置为 true
   disable-color: false
+
+ge2o:
+  # api 本地密钥, 必须配置后才能启用接口调用
+  api-secret: my-secret
