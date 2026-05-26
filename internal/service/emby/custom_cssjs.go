@@ -214,7 +214,9 @@ func ProxyCustomJs(c *gin.Context) {
 		contentBuilder.WriteString("  function waitForEmby() {\n")
 		contentBuilder.WriteString("    if (typeof ApiClient !== 'undefined' && ApiClient !== null) {\n")
 		contentBuilder.WriteString("      try {\n")
-		contentBuilder.WriteString("        " + script + "\n")
+
+		fmt.Fprintf(&contentBuilder, "        %s\n", script)
+
 		contentBuilder.WriteString("      } catch (e) {\n")
 		contentBuilder.WriteString("        console.error('Custom script error:', e);\n")
 		contentBuilder.WriteString("      }\n")
