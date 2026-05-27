@@ -51,6 +51,9 @@ type Synchronizer struct {
 	// hasScanFinish 当前已处理完成的任务数
 	hasScanFinish int64
 
+	// apiRefreshFlag 标记是否需要强制刷新远程缓存
+	apiRefreshFlag bool
+
 	sync.Mutex
 }
 
@@ -64,11 +67,12 @@ func NewSynchronizer(baseDir string, pageSize int) *Synchronizer {
 }
 
 // Sync 触发一次同步操作
-func (s *Synchronizer) Sync(prefix string) (total, added, deleted int, err error) {
+func (s *Synchronizer) Sync(prefix string, apiRefreshFlag bool) (total, added, deleted int, err error) {
 	if !s.TryLock() {
 		return 0, 0, 0, fmt.Errorf("当前正在执行同步任务")
 	}
 	defer s.Unlock()
+	s.apiRefreshFlag = apiRefreshFlag
 
 	if err := s.InitSnapshot(prefix); err != nil {
 		return 0, 0, 0, fmt.Errorf("初始化快照异常: %w", err)
@@ -182,7 +186,7 @@ func (s *Synchronizer) InitSnapshot(prefix string) error {
 
 // walkDir2SyncTasks 分页遍历 openlist 指定前缀目录下的文件, 加入到任务通道中
 func (s *Synchronizer) walkDir2SyncTasks(prefix string) error {
-	walker := openlist.WalkFsList(prefix, s.pageSize)
+	walker := openlist.WalkFsList(prefix, s.pageSize, s.apiRefreshFlag)
 	var page openlist.FsList
 	var err error
 

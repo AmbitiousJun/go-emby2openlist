@@ -36,7 +36,7 @@ func Init() error {
 }
 
 // doSync 执行一次同步 并输出日志
-func doSync(s *Synchronizer, prefix string) error {
+func doSync(s *Synchronizer, prefix string, apiRefreshFlag bool) error {
 	if prefix == "" {
 		prefix = "/"
 	}
@@ -48,7 +48,7 @@ func doSync(s *Synchronizer, prefix string) error {
 	}
 
 	start := time.Now()
-	total, added, deleted, err := s.Sync(prefix)
+	total, added, deleted, err := s.Sync(prefix, apiRefreshFlag)
 	if err != nil {
 		return err
 	}
@@ -59,14 +59,14 @@ func doSync(s *Synchronizer, prefix string) error {
 
 // startSync 立即同步一次目录树, 并开始定时扫描同步变更
 func startSync(s *Synchronizer) {
-	if err := doSync(s, ""); err != nil {
+	if err := doSync(s, "", false); err != nil {
 		logf(colors.Red, "同步失败: %v", err)
 	}
 
 	d := time.Minute * time.Duration(config.C.Openlist.LocalTreeGen.RefreshInterval)
 	timer := time.NewTicker(d)
 	for range timer.C {
-		if err := doSync(s, ""); err != nil {
+		if err := doSync(s, "", false); err != nil {
 			logf(colors.Red, "同步失败: %v", err)
 		}
 	}

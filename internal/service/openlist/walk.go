@@ -47,7 +47,7 @@ func waitForMainComplete() {
 // FetchFsList 请求 openlist "/api/fs/list" 接口, 支持分页
 //
 // 传入 path 与接口的 path 作用一致
-func WalkFsList(path string, perPage int) *Walker[FsList] {
+func WalkFsList(path string, perPage int, refresh bool) *Walker[FsList] {
 	w := Walker[FsList]{curPage: 1}
 
 	w.Next = func() (FsList, error) {
@@ -58,7 +58,7 @@ func WalkFsList(path string, perPage int) *Walker[FsList] {
 
 		var res FsList
 		err := Fetch("/api/fs/list", http.MethodPost, nil, map[string]any{
-			"refresh":  false,
+			"refresh":  refresh,
 			"password": "",
 			"path":     path,
 			"page":     w.curPage,
