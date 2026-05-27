@@ -60,7 +60,7 @@ func UpdateManually(c *gin.Context) {
 	// 执行同步
 	errChan := make(chan error)
 	go func() {
-		err := doSync(synchronizer, reqData.Prefix)
+		err := doSync(synchronizer, reqData.Prefix, reqData.Refresh)
 		errChan <- err
 		if err != nil {
 			logf(colors.Red, "同步失败: %v", err)

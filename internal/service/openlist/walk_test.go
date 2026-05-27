@@ -15,7 +15,7 @@ func TestWalkFsList(t *testing.T) {
 		return
 	}
 
-	walker := openlist.WalkFsList("/", 4)
+	walker := openlist.WalkFsList("/", 4, false)
 	page, err := walker.Next()
 	for err == nil {
 		log.Println("page: ", page)
