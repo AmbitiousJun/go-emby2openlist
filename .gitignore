@@ -8,3 +8,4 @@ custom-css/*.css
 openlist-local-tree
 lib
 dist
+web/src/node_modules
