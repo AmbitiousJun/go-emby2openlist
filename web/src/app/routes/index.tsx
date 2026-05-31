@@ -9,7 +9,7 @@ export default function Index() {
 
   return (
     <div className="w-full lg:px-48 max-lg:px-12 space-y-6 pb-12">
-      <img className="w-50 h-50 mx-auto" src={logoImg} alt="logo" />
+      <img className="w-50 h-50 mx-auto rounded-3xl" src={logoImg} alt="logo" />
 
       <div className="text-4xl font-bold text-center">go-emby2openlist</div>
 
@@ -53,14 +53,14 @@ export default function Index() {
         网盘直链反向代理服务，深度适配阿里云盘转码播放。
       </div>
 
-      <div className="w-full space-y-6 px-4 mx-auto flex flex-wrap justify-center items-center gap-4">
-        <nav className="w-[300px] h-[200px] rounded-3xl border border-accent-content p-6 space-y-4 bg-accent">
-          <p className="leading-6 text-center text-accent-content">快速导航</p>
+      <div className="w-full px-4 mx-auto flex flex-wrap justify-center items-center gap-4">
+        <nav className="w-[300px] h-[200px] rounded-3xl border border-accent p-6 space-y-4 bg-base-200">
+          <p className="leading-6 text-center text-base-content">快速导航</p>
           <ul>
             {resources.map(({ href, text, icon }) => (
               <li key={href}>
                 <a
-                  className="group flex items-center gap-3 self-stretch p-3 leading-normal hover:underline text-accent-content"
+                  className="group flex items-center gap-3 self-stretch p-3 leading-normal hover:underline text-base-content hover:text-accent"
                   href={href}
                   target="_blank"
                   rel="noreferrer"
@@ -76,7 +76,7 @@ export default function Index() {
         <a href="https://star-history.com/#AmbitiousJun/go-emby2openlist&Date">
           <img
             alt="Star History Chart"
-            className="rounded-3xl max-w-[500px]"
+            className="rounded-3xl w-[300px] h-[200px]"
             src={
               dark
                 ? "https://api.star-history.com/svg?repos=AmbitiousJun/go-emby2openlist&type=Date&theme=dark"
