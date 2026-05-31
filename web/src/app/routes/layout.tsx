@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { Route } from "./+types/layout";
 import { Link, Outlet } from "react-router";
 import { House, Menu, Moon, Sun, TvMinimalPlay } from "lucide-react";
+import SettingsModal from "~/components/settings_modal/settings_modal";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -9,6 +10,11 @@ export function meta({}: Route.MetaArgs) {
     { name: "description", content: "go-emby2openlist web application" },
   ];
 }
+
+export type ThemeContext = {
+  dark: boolean;
+  setDark: (dark: boolean) => void;
+};
 
 export default function Layout() {
   const [dark, setDark] = useState(localStorage.getItem("dark") ? true : false);
@@ -72,16 +78,19 @@ export default function Layout() {
             {/* 导航栏右侧 */}
             <div className="navbar-end space-x-4">
               {/* 主题切换 */}
-              <label className="flex cursor-pointer gap-2">
-                <Sun />
+              <label className="swap swap-rotate">
+                {/* this hidden checkbox controls the state */}
                 <input
                   type="checkbox"
-                  className="toggle"
                   checked={dark}
                   onChange={(e) => setDarkAndSave(e.target.checked)}
                 />
-                <Moon />
+                <Sun className="swap-off" />
+                <Moon className="swap-on" />
               </label>
+              
+              {/* 设置选项 */}
+              <SettingsModal />
 
               {/* 回主页 */}
               <div className="tooltip tooltip-bottom" data-tip="媒体库主页">
@@ -112,7 +121,7 @@ export default function Layout() {
       </nav>
 
       <main>
-        <Outlet />
+        <Outlet context={{ dark, setDark: setDarkAndSave }} />
       </main>
     </div>
   );
