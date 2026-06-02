@@ -3,6 +3,7 @@ import type { Route } from "./+types/layout";
 import { Link, Outlet } from "react-router";
 import { House, Menu, Moon, Sun, TvMinimalPlay } from "lucide-react";
 import SettingsModal from "~/components/settings_modal/settings_modal";
+import { Toaster } from "react-hot-toast";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -88,7 +89,7 @@ export default function Layout() {
                 <Sun className="swap-off" />
                 <Moon className="swap-on" />
               </label>
-              
+
               {/* 设置选项 */}
               <SettingsModal />
 

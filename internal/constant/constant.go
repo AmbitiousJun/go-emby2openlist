@@ -52,6 +52,7 @@ const (
 	Route_CustomCss               = Route_SelfBase + "/custom.css"
 	Route_UpdateOpenlistLocalTree = Route_SelfBase + "/openlist/local_tree/update"
 	Route_Web                     = Route_SelfBase + "/web"
+	Route_ValidateApiSecret       = Route_SelfBase + "/secret/validate"
 )
 
 const (

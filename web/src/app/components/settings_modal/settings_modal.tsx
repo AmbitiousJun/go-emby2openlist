@@ -1,5 +1,6 @@
 import { Settings } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import toastUtils from "../../utils/toast";
 
 export default function SettingsModal() {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -7,15 +8,17 @@ export default function SettingsModal() {
     localStorage.getItem("api-secret") || "",
   );
   const [apiSecretChecking, setApiSecretChecking] = useState(false);
-  const [apiSecretCheckOk, setApiSecretCheckOk] = useState<boolean | null>(null); 
+  const [apiSecretCheckOk, setApiSecretCheckOk] = useState<boolean | null>(
+    null,
+  );
 
   // 接口密钥变更的时候就自动检测正确性
   useEffect(() => {
     const timer = setTimeout(async () => {
       setApiSecretChecking(true);
       try {
-        // TODO: 后端增加一个校验接口密钥的接口 并补充前端缺失的逻辑
         setApiSecretCheckOk(true);
+      } catch (err) {
       } finally {
         setApiSecretChecking(false);
       }
@@ -23,6 +26,14 @@ export default function SettingsModal() {
 
     return () => clearTimeout(timer);
   }, [apiSecret]);
+
+  // 显示对话框
+  const show = () => {
+    // TODO: 补充其余的 toast 对接接口
+    setApiSecret(localStorage.getItem("api-secret") || "");
+    toastUtils.success("这是一条测试消息");
+    dialogRef.current?.showModal();
+  };
 
   const saveAndClose = () => {
     localStorage.setItem("api-secret", apiSecret);
@@ -38,10 +49,7 @@ export default function SettingsModal() {
 
   return (
     <>
-      <button
-        className="btn btn-ghost btn-circle"
-        onClick={() => dialogRef.current?.showModal()}
-      >
+      <button className="btn btn-ghost btn-circle" onClick={show}>
         <Settings />
       </button>
       <dialog ref={dialogRef} className="modal modal-bottom sm:modal-middle">

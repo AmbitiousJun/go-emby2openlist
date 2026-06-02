@@ -2,6 +2,7 @@ package web
 
 import (
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/constant"
+	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/service"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/service/emby"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/service/m3u8"
 	openlist_localtree "github.com/AmbitiousJun/go-emby2openlist/v2/internal/service/openlist/localtree"
@@ -80,6 +81,9 @@ func initRulePatterns() {
 
 		// 手动更新本地目录树
 		{constant.Route_UpdateOpenlistLocalTree, openlist_localtree.UpdateManually},
+
+		// 校验程序密钥
+		{constant.Route_ValidateApiSecret, service.ValidateApiSecret},
 
 		// 根路径重定向到首页
 		{constant.Reg_Root, emby.ProxyRoot},
