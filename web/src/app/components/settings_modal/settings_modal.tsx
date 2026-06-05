@@ -17,8 +17,26 @@ export default function SettingsModal() {
     const timer = setTimeout(async () => {
       setApiSecretChecking(true);
       try {
-        setApiSecretCheckOk(true);
+        if (!apiSecret) {
+          return;
+        }
+
+        const fetchState = await fetch("/ge2o/secret/validate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            "secret": apiSecret
+          })
+        })
+
+        const res = await fetchState.json();
+
+        setApiSecretCheckOk(res.success ?? false);
       } catch (err) {
+        dialogRef.current?.close();
+        toastUtils.error(`校验接口密钥出现异常: ${err}`);
       } finally {
         setApiSecretChecking(false);
       }
@@ -29,15 +47,14 @@ export default function SettingsModal() {
 
   // 显示对话框
   const show = () => {
-    // TODO: 补充其余的 toast 对接接口
     setApiSecret(localStorage.getItem("api-secret") || "");
-    toastUtils.success("这是一条测试消息");
     dialogRef.current?.showModal();
   };
 
   const saveAndClose = () => {
     localStorage.setItem("api-secret", apiSecret);
     dialogRef.current?.close();
+    toastUtils.success("保存成功");
   };
 
   let apiSecretInputColor = "";
