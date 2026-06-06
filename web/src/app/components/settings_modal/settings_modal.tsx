@@ -24,13 +24,16 @@ export default function SettingsModal() {
         const fetchState = await fetch("/ge2o/secret/validate", {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            "secret": apiSecret
-          })
-        })
+            secret: apiSecret,
+          }),
+        });
 
+        if (!fetchState.ok || fetchState.status != 200) {
+          throw Error(`调用失败: ${fetchState.statusText}`);
+        }
         const res = await fetchState.json();
 
         setApiSecretCheckOk(res.success ?? false);

@@ -1,9 +1,16 @@
-import { type RouteConfig, index, layout, route } from "@react-router/dev/routes";
+import {
+  type RouteConfig,
+  index,
+  layout,
+  route,
+} from "@react-router/dev/routes";
 
 export default [
-    layout("routes/layout.tsx", [
-        index("routes/index.tsx"),
-        route("sub1", "routes/sub1.tsx"),
-        route("sub2", "routes/sub2.tsx"),
-    ])
+  layout("routes/layout.tsx", [
+    index("routes/index.tsx"),
+    route(
+      "api/openlist_local_tree",
+      "routes/api/openlist_local_tree/index.tsx",
+    ),
+  ]),
 ] satisfies RouteConfig;

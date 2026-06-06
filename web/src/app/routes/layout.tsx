@@ -1,9 +1,8 @@
+import { House, Menu, Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
-import type { Route } from "./+types/layout";
-import { Link, Outlet } from "react-router";
-import { House, Menu, Moon, Sun, TvMinimalPlay } from "lucide-react";
+import { Outlet, useLocation, useNavigate } from "react-router";
 import SettingsModal from "~/components/settings_modal/settings_modal";
-import { Toaster } from "react-hot-toast";
+import type { Route } from "./+types/layout";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -17,15 +16,46 @@ export type ThemeContext = {
   setDark: (dark: boolean) => void;
 };
 
-export default function Layout() {
-  const [dark, setDark] = useState(localStorage.getItem("dark") ? true : false);
+type NavItem = {
+  label: string;
+  to: string | null;
+  children: NavItem[];
+};
 
+const navData: NavItem[] = [
+  {
+    label: "接口调用",
+    to: null,
+    children: [
+      {
+        label: "OpenList 本地目录树",
+        to: "/api/openlist_local_tree",
+        children: [],
+      },
+    ],
+  },
+];
+
+export default function Layout() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [dark, setDark] = useState(localStorage.getItem("dark") ? true : false);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // 自动切换主题色
   useEffect(() => {
     document.documentElement.setAttribute(
       "data-theme",
       dark ? "dark" : "light",
     );
   }, [dark]);
+
+  // 监听页面路径变化 自动收起导航栏
+  useEffect(() => {
+    document
+      .querySelectorAll("details")
+      .forEach((item) => ((item as HTMLDetailsElement).open = false));
+  }, [location.pathname]);
 
   const setDarkAndSave = (dark: boolean) => {
     setDark(dark);
@@ -36,12 +66,66 @@ export default function Layout() {
     window.location.href = `${window.location.origin}/`;
   };
 
+  const navItemMapperHorizotal = (item: NavItem) => {
+    if (item.children.length <= 0) {
+      return (
+        <li>
+          <button onClick={() => navigate(item.to ?? "/")}>{item.label}</button>
+        </li>
+      );
+    }
+    return (
+      <li>
+        <details>
+          <summary>{item.label}</summary>
+          <ul className="p-2 bg-base-100 w-60 z-1">
+            {item.children.map((itemInner) =>
+              navItemMapperHorizotal(itemInner),
+            )}
+          </ul>
+        </details>
+      </li>
+    );
+  };
+
+  const navItemMapperVertical = (item: NavItem) => {
+    if (item.children.length <= 0) {
+      return (
+        <li>
+          <button
+            onClick={() => {
+              setMenuOpen(false);
+              navigate(item.to ?? "/");
+            }}
+          >
+            {item.label}
+          </button>
+        </li>
+      );
+    }
+
+    return (
+      <li>
+        <button>{item.label}</button>
+        <ul>
+          {item.children.map((itemInner) => navItemMapperVertical(itemInner))}
+        </ul>
+      </li>
+    );
+  };
+
   return (
     <div>
       <nav>
         <div className="max-lg:collapse bg-base-200 mb-12 shadow-sm w-full rounded-md px-4">
           {/* 全屏遮罩 */}
-          <input id="navbar-1-toggle" className="peer hidden" type="checkbox" />
+          <input
+            id="navbar-1-toggle"
+            className="peer hidden"
+            type="checkbox"
+            checked={menuOpen}
+            onChange={(e) => setMenuOpen(e.target.checked)}
+          />
           <label
             htmlFor="navbar-1-toggle"
             className="fixed inset-0 hidden max-lg:peer-checked:block"
@@ -57,22 +141,18 @@ export default function Layout() {
               >
                 <Menu />
               </label>
-              <button className="btn btn-ghost text-xl">Ge2o Web</button>
+              <button
+                className="btn btn-ghost text-xl"
+                onClick={() => navigate("/")}
+              >
+                Ge2o Web
+              </button>
             </div>
 
             {/* 导航栏内容 */}
             <div className="navbar-center hidden lg:flex">
               <ul className="menu menu-horizontal px-1">
-                <li>
-                  <details>
-                    <summary>接口调用</summary>
-                    <ul className="p-2 bg-base-100 w-60 z-1">
-                      <li>
-                        <button>OpenList 本地目录树</button>
-                      </li>
-                    </ul>
-                  </details>
-                </li>
+                {navData.map((item) => navItemMapperHorizotal(item))}
               </ul>
             </div>
 
@@ -108,14 +188,7 @@ export default function Layout() {
           {/* 折叠导航栏 */}
           <div className="collapse-content lg:hidden z-1">
             <ul className="menu">
-              <li>
-                <button>接口调用</button>
-                <ul>
-                  <li>
-                    <button>OpenList 本地目录树</button>
-                  </li>
-                </ul>
-              </li>
+              {navData.map((item) => navItemMapperVertical(item))}
             </ul>
           </div>
         </div>
