@@ -41,7 +41,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {children}
         <ScrollRestoration />
         <Scripts />
-        <Toaster />
+        <Toaster containerClassName="mt-14" />
       </body>
     </html>
   );

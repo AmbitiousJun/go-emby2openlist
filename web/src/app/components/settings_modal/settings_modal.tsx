@@ -2,10 +2,12 @@ import { Settings } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import toastUtils from "../../utils/toast";
 
+export const LOCAL_STORAGE_KEY_API_SECRET = "api_secret";
+
 export default function SettingsModal() {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [apiSecret, setApiSecret] = useState(
-    localStorage.getItem("api-secret") || "",
+    localStorage.getItem(LOCAL_STORAGE_KEY_API_SECRET) || "",
   );
   const [apiSecretChecking, setApiSecretChecking] = useState(false);
   const [apiSecretCheckOk, setApiSecretCheckOk] = useState<boolean | null>(
@@ -32,14 +34,18 @@ export default function SettingsModal() {
         });
 
         if (!fetchState.ok || fetchState.status != 200) {
-          throw Error(`调用失败: ${fetchState.statusText}`);
+          throw Error(`请求失败: ${fetchState.statusText}`);
         }
         const res = await fetchState.json();
 
         setApiSecretCheckOk(res.success ?? false);
       } catch (err) {
+        if (err instanceof Error) {
+          err = err.message;
+        }
+
         dialogRef.current?.close();
-        toastUtils.error(`校验接口密钥出现异常: ${err}`);
+        toastUtils.error(`校验接口密钥异常: ${err}`);
       } finally {
         setApiSecretChecking(false);
       }
@@ -50,12 +56,12 @@ export default function SettingsModal() {
 
   // 显示对话框
   const show = () => {
-    setApiSecret(localStorage.getItem("api-secret") || "");
+    setApiSecret(localStorage.getItem(LOCAL_STORAGE_KEY_API_SECRET) || "");
     dialogRef.current?.showModal();
   };
 
   const saveAndClose = () => {
-    localStorage.setItem("api-secret", apiSecret);
+    localStorage.setItem(LOCAL_STORAGE_KEY_API_SECRET, apiSecret);
     dialogRef.current?.close();
     toastUtils.success("保存成功");
   };
