@@ -12,5 +12,6 @@ export default [
       "api/openlist_local_tree",
       "routes/api/openlist_local_tree/index.tsx",
     ),
+    route("log", "routes/log/index.tsx"),
   ]),
 ] satisfies RouteConfig;

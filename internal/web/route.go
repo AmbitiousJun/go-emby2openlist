@@ -85,6 +85,9 @@ func initRulePatterns() {
 		// 校验程序密钥
 		{constant.Route_ValidateApiSecret, service.ValidateApiSecret},
 
+		// 同步服务端日志
+		{constant.Route_SyncServerLog, service.SyncServerLog},
+
 		// 根路径重定向到首页
 		{constant.Reg_Root, emby.ProxyRoot},
 

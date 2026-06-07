@@ -53,6 +53,7 @@ const (
 	Route_UpdateOpenlistLocalTree = Route_SelfBase + "/openlist/local_tree/update"
 	Route_Web                     = Route_SelfBase + "/web"
 	Route_ValidateApiSecret       = Route_SelfBase + "/secret/validate"
+	Route_SyncServerLog           = Route_SelfBase + "/ws/log/sync"
 )
 
 const (

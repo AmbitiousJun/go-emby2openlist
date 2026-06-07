@@ -18,14 +18,13 @@ export type ThemeContext = {
 
 type NavItem = {
   label: string;
-  to: string | null;
+  to?: string;
   children: NavItem[];
 };
 
 const navData: NavItem[] = [
   {
     label: "接口调用",
-    to: null,
     children: [
       {
         label: "OpenList 本地目录树",
@@ -33,6 +32,11 @@ const navData: NavItem[] = [
         children: [],
       },
     ],
+  },
+  {
+    label: "日志",
+    to: "/log",
+    children: [],
   },
 ];
 

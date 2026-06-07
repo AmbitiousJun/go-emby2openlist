@@ -1,12 +1,12 @@
 package web
 
 import (
-	"fmt"
 	"strconv"
 	"time"
 
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/constant"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/https"
+	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/logs"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/logs/colors"
 	"github.com/gin-gonic/gin"
 )
@@ -19,7 +19,7 @@ func CustomLogger(port string) gin.HandlerFunc {
 		c.Next()
 
 		// 记录日志
-		fmt.Printf("%s %s | %s | %s | %s | %s %s | %s %s\n",
+		logs.Raw("%s %s | %s | %s | %s | %s %s | %s %s\n",
 			colors.ToYellow("[ge2o:"+constant.CurrentVersion+"]"),
 			start.Format("2006-01-02 15:04:05"),
 			colorStatusCode(c.Writer.Status()),
