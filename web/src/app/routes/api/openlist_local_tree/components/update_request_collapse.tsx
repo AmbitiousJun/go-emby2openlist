@@ -38,6 +38,36 @@ export default function UpdateRequestCollapse() {
     localStorage.setItem(LOCAL_STORAGE_KEY_UPDATE_PREFIX, prefix);
   };
 
+  const updatePrefixHistoriesAndSave = (newRecord: string) => {
+    // 1 过滤记录
+    const filterRecord = newRecord.trim();
+    if (!filterRecord) {
+      return;
+    }
+    let newHistories = [...prefixHistories];
+
+    // 2 在旧的记录中查找是否有重复的记录
+    const idx = newHistories.indexOf(newRecord);
+    if (idx != -1) {
+      newHistories = newHistories.filter((_, i) => idx != i);
+    }
+
+    // 3 将当前的新记录插入头部
+    const currentLength = newHistories.unshift(newRecord);
+
+    // 4 维护最大个数
+    if (currentLength > 100) {
+      newHistories = newHistories.slice(0, 100);
+    }
+
+    // 5 更新
+    setPrefixHistories(newHistories);
+    localStorage.setItem(
+      LOCAL_STORAGE_KEY_PREFIX_HISTORIES,
+      JSON.stringify(newHistories),
+    );
+  };
+
   // 调用接口触发后台目录树刷新
   const handleUpdate = async () => {
     setUpdating(true);
@@ -50,6 +80,8 @@ export default function UpdateRequestCollapse() {
       }
 
       // 2 发起请求
+      const filterPrefix = prefix.trim();
+      setPrefix(filterPrefix);
       const fetchState = await fetch("/ge2o/openlist/local_tree/update", {
         method: "POST",
         headers: {
@@ -57,7 +89,7 @@ export default function UpdateRequestCollapse() {
         },
         body: JSON.stringify({
           secret: secret,
-          prefix: prefix.trim(),
+          prefix: filterPrefix,
           refresh: forceRefreshFlag,
         }),
       });
@@ -76,6 +108,7 @@ export default function UpdateRequestCollapse() {
         return;
       }
       toastUtils.success(res.message);
+      updatePrefixHistoriesAndSave(filterPrefix);
     } catch (err) {
       if (err instanceof Error) {
         err = err.message;
@@ -100,13 +133,11 @@ export default function UpdateRequestCollapse() {
             value={prefix}
             onChange={(e) => updatePrefixAndSave(e.target.value)}
           />
-          {/* TODO: 等到接口调用通了之后再来完善这个功能 */}
+          {/* 历史记录提示 */}
           <datalist id="prefix-histories-datalist">
-            <option value="Chrome"></option>
-            <option value="Firefox"></option>
-            <option value="Safari"></option>
-            <option value="Opera"></option>
-            <option value="Edge"></option>
+            {prefixHistories.map((item) => (
+              <option value={item} />
+            ))}
           </datalist>
         </div>
 
