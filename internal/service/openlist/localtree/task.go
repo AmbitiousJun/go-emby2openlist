@@ -281,7 +281,7 @@ func getRealDownloadUrl(task FileTask) string {
 		AddHeader("User-Agent", constant.CommonDlUserAgent).
 		DoRedirect()
 	if err != nil {
-		logs.Warn("获取真实下载链接失败: %w", err)
+		logs.Warn("获取真实下载链接失败: %v", err)
 		return openlistUrl
 	}
 	defer resp.Body.Close()
