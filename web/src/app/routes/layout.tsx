@@ -1,8 +1,38 @@
 import { House, Menu, Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Outlet, useLocation, useNavigate } from "react-router";
+import { Link, Outlet, useLocation, useNavigate } from "react-router";
 import SettingsModal from "~/components/settings_modal/settings_modal";
 import type { Route } from "./+types/layout";
+import { Button } from "~/components/ui/button";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "~/components/ui/navigation-menu";
+import { ModeToggle } from "~/components/mode_toggle";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -40,31 +70,8 @@ const navData: NavItem[] = [
   },
 ];
 
-export default function Layout() {
+export default function Layout2() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const [dark, setDark] = useState(localStorage.getItem("dark") ? true : false);
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  // 自动切换主题色
-  useEffect(() => {
-    document.documentElement.setAttribute(
-      "data-theme",
-      dark ? "dark" : "light",
-    );
-  }, [dark]);
-
-  // 监听页面路径变化 自动收起导航栏
-  useEffect(() => {
-    document
-      .querySelectorAll("details")
-      .forEach((item) => ((item as HTMLDetailsElement).open = false));
-  }, [location.pathname]);
-
-  const setDarkAndSave = (dark: boolean) => {
-    setDark(dark);
-    localStorage.setItem("dark", dark ? "1" : "");
-  };
 
   const navigateToMediaServerHome = () => {
     window.location.href = `${window.location.origin}/`;
@@ -73,133 +80,101 @@ export default function Layout() {
   const navItemMapperHorizotal = (item: NavItem) => {
     if (item.children.length <= 0) {
       return (
-        <li>
-          <button onClick={() => navigate(item.to ?? "/")}>{item.label}</button>
-        </li>
+        <NavigationMenuItem>
+          <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+            <Link to={item.to ?? "/"}>{item.label}</Link>
+          </NavigationMenuLink>
+        </NavigationMenuItem>
       );
     }
     return (
-      <li>
-        <details>
-          <summary>{item.label}</summary>
-          <ul className="p-2 bg-base-100 w-60 z-1">
-            {item.children.map((itemInner) =>
-              navItemMapperHorizotal(itemInner),
-            )}
-          </ul>
-        </details>
-      </li>
+      <NavigationMenuItem>
+        <NavigationMenuTrigger className={navigationMenuTriggerStyle()}>
+          {item.label}
+        </NavigationMenuTrigger>
+        <NavigationMenuContent>
+          {item.children.map((itemInner) => navItemMapperHorizotal(itemInner))}
+        </NavigationMenuContent>
+      </NavigationMenuItem>
     );
   };
 
   const navItemMapperVertical = (item: NavItem) => {
     if (item.children.length <= 0) {
       return (
-        <li>
-          <button
-            onClick={() => {
-              setMenuOpen(false);
-              navigate(item.to ?? "/");
-            }}
-          >
-            {item.label}
-          </button>
-        </li>
+        <DropdownMenuItem onClick={() => navigate(item.to ?? "/")}>
+          {item.label}
+        </DropdownMenuItem>
       );
     }
 
     return (
-      <li>
-        <button>{item.label}</button>
-        <ul>
-          {item.children.map((itemInner) => navItemMapperVertical(itemInner))}
-        </ul>
-      </li>
+      <DropdownMenuSub>
+        <DropdownMenuSubTrigger>{item.label}</DropdownMenuSubTrigger>
+        <DropdownMenuPortal>
+          <DropdownMenuSubContent>
+            {item.children.map((itemInner) => navItemMapperVertical(itemInner))}
+          </DropdownMenuSubContent>
+        </DropdownMenuPortal>
+      </DropdownMenuSub>
     );
   };
 
   return (
     <div>
-      <nav>
-        <div className="max-lg:collapse bg-base-200 mb-12 shadow-sm w-full rounded-md px-4">
-          {/* 全屏遮罩 */}
-          <input
-            id="navbar-1-toggle"
-            className="peer hidden"
-            type="checkbox"
-            checked={menuOpen}
-            onChange={(e) => setMenuOpen(e.target.checked)}
-          />
-          <label
-            htmlFor="navbar-1-toggle"
-            className="fixed inset-0 hidden max-lg:peer-checked:block"
-          ></label>
-
-          {/* 导航栏主体 */}
-          <div className="collapse-title navbar">
-            {/* 导航栏左侧 */}
-            <div className="navbar-start">
-              <label
-                htmlFor="navbar-1-toggle"
-                className="btn btn-ghost lg:hidden"
-              >
+      {/* 顶部信息栏 */}
+      <div className="w-full flex justify-between items-center mb-12 shadow-sm border-b rounded-md px-4 py-4 bg-background text-backdround-foreground">
+        {/* 左边的按钮 */}
+        <div className="flex items-center">
+          {/* 竖屏导航栏 使用下拉菜单代替 */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild className="lg:hidden">
+              <Button variant="ghost">
                 <Menu />
-              </label>
-              <button
-                className="btn btn-ghost text-xl"
-                onClick={() => navigate("/")}
-              >
-                Ge2o Web
-              </button>
-            </div>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-40" align="start">
+              {navData.map((nav) => navItemMapperVertical(nav))}
+            </DropdownMenuContent>
+          </DropdownMenu>
 
-            {/* 导航栏内容 */}
-            <div className="navbar-center hidden lg:flex">
-              <ul className="menu menu-horizontal px-1">
-                {navData.map((item) => navItemMapperHorizotal(item))}
-              </ul>
-            </div>
-
-            {/* 导航栏右侧 */}
-            <div className="navbar-end space-x-4">
-              {/* 主题切换 */}
-              <label className="swap swap-rotate">
-                {/* this hidden checkbox controls the state */}
-                <input
-                  type="checkbox"
-                  checked={dark}
-                  onChange={(e) => setDarkAndSave(e.target.checked)}
-                />
-                <Sun className="swap-off" />
-                <Moon className="swap-on" />
-              </label>
-
-              {/* 设置选项 */}
-              <SettingsModal />
-
-              {/* 回主页 */}
-              <div className="tooltip tooltip-bottom" data-tip="媒体库主页">
-                <button
-                  className="btn btn-ghost btn-circle"
-                  onClick={navigateToMediaServerHome}
-                >
-                  <House />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* 折叠导航栏 */}
-          <div className="collapse-content lg:hidden z-1">
-            <ul className="menu">
-              {navData.map((item) => navItemMapperVertical(item))}
-            </ul>
-          </div>
+          <Button variant="ghost" className="text-xl">
+            <Link to="/">Ge2o Web</Link>
+          </Button>
         </div>
-      </nav>
+
+        {/* 中间的导航栏 */}
+        <NavigationMenu className="hidden lg:block">
+          <NavigationMenuList>
+            {navData.map((nav) => navItemMapperHorizotal(nav))}
+          </NavigationMenuList>
+        </NavigationMenu>
+
+        {/* 右边的按钮 */}
+        <div className="space-x-2">
+          {/* 切换主题 */}
+          <ModeToggle />
+
+          {/* 回到服务器主页 */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={navigateToMediaServerHome}
+              >
+                <House className="h-[1.2rem] w-[1.2rem]" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>回到媒体库主页</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
+      </div>
 
       <main>
-        <Outlet context={{ dark, setDark: setDarkAndSave }} />
+        <Outlet context={{}} />
       </main>
     </div>
   );

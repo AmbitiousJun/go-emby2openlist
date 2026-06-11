@@ -1,14 +1,13 @@
 import logoImg from "~/assets/logo.png";
 import { FaGithub } from "react-icons/fa";
 import { Cog } from "lucide-react";
-import { useOutletContext } from "react-router";
-import type { ThemeContext } from "./layout";
+import { useTheme } from "~/components/theme_provider";
 
 export default function Index() {
-  const { dark } = useOutletContext<ThemeContext>();
+  const { theme } = useTheme();
 
   return (
-    <div className="w-full lg:px-48 max-lg:px-12 space-y-6 pb-12">
+    <div className="w-full lg:px-48 max-lg:px-24 pb-12 space-y-6">
       <img className="w-50 h-50 mx-auto rounded-3xl" src={logoImg} alt="logo" />
 
       <div className="text-4xl font-bold text-center">go-emby2openlist</div>
@@ -54,13 +53,13 @@ export default function Index() {
       </div>
 
       <div className="w-full px-4 mx-auto flex flex-wrap justify-center items-center gap-4">
-        <nav className="w-[300px] h-[200px] rounded-3xl border border-accent p-6 space-y-4 bg-base-200">
-          <p className="leading-6 text-center text-base-content">快速导航</p>
+        <nav className="w-[300px] h-[200px] rounded-3xl border border-accent-foreground p-6 shadow-md space-y-4">
+          <p className="leading-6 text-center">快速导航</p>
           <ul>
             {resources.map(({ href, text, icon }) => (
               <li key={href}>
                 <a
-                  className="group flex items-center gap-3 self-stretch p-3 leading-normal hover:underline text-base-content hover:text-accent"
+                  className="group flex items-center gap-3 self-stretch p-3 leading-normal hover:underline hover:text-chart-4"
                   href={href}
                   target="_blank"
                   rel="noreferrer"
@@ -76,9 +75,9 @@ export default function Index() {
         <a href="https://star-history.com/#AmbitiousJun/go-emby2openlist&Date">
           <img
             alt="Star History Chart"
-            className="rounded-3xl w-[300px] h-[200px]"
+            className="rounded-3xl w-[300px] h-[200px] border border-accent-foreground shadow-md"
             src={
-              dark
+              theme === "dark"
                 ? "https://api.star-history.com/svg?repos=AmbitiousJun/go-emby2openlist&type=Date&theme=dark"
                 : "https://api.star-history.com/svg?repos=AmbitiousJun/go-emby2openlist&type=Date"
             }

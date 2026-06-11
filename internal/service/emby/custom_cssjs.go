@@ -180,7 +180,6 @@ func innerJsAddGe2oWebButton() string {
     setTimeout(doInject);
     return;
   }
-  console.log("脚本进来了");
 
   // 2 构造按钮
   const btn = document.createElement("button");
@@ -194,20 +193,26 @@ func innerJsAddGe2oWebButton() string {
   btn.innerHTML =
     '<img src="/ge2o/web/favicon.ico" style="width: 1em; height: 1em"/>';
   btn.onclick = () => {
-    window.location.href =
-      window.location.protocol + "//" + window.location.host + "/ge2o/web/";
+    const a = document.createElement("a");
+    a.setAttribute("href", "/ge2o/web/");
+    a.setAttribute("target", "_blank");
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   // 3 循环检测插入
   setInterval(() => {
     if (document.contains(btn)) {
-	  reutrn;
+      return;
     }
-	parentElm.insertBefore(btn, brotherElm);
+    if (!document.contains(parentElm) || !document.contains(brotherElm)) {
+      return;
+    }
+    parentElm.insertBefore(btn, brotherElm);
   }, 1000);
   parentElm.insertBefore(btn, brotherElm);
 }
-
 doInject();`
 }
 
