@@ -9,9 +9,9 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "./components/theme_provider";
 import { TooltipProvider } from "./components/ui/tooltip";
+import { Toaster } from "./components/ui/sonner";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -43,7 +43,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <TooltipProvider>{children}</TooltipProvider>
         <ScrollRestoration />
         <Scripts />
-        <Toaster containerClassName="mt-14" />
+        <Toaster richColors position="top-right" offset={{ top: 100 }} />
       </body>
     </html>
   );

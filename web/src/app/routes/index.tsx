@@ -7,7 +7,7 @@ export default function Index() {
   const { theme } = useTheme();
 
   return (
-    <div className="w-full lg:px-48 max-lg:px-24 pb-12 space-y-6">
+    <div className="w-full px-6 lg:px-48 pb-12 space-y-6">
       <img className="w-50 h-50 mx-auto rounded-3xl" src={logoImg} alt="logo" />
 
       <div className="text-4xl font-bold text-center">go-emby2openlist</div>

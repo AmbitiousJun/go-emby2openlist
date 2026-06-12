@@ -33,6 +33,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import { toast } from "sonner";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -70,7 +71,7 @@ const navData: NavItem[] = [
   },
 ];
 
-export default function Layout2() {
+export default function Layout() {
   const navigate = useNavigate();
 
   const navigateToMediaServerHome = () => {
@@ -129,8 +130,8 @@ export default function Layout2() {
           {/* 竖屏导航栏 使用下拉菜单代替 */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild className="lg:hidden">
-              <Button variant="ghost">
-                <Menu />
+              <Button variant="ghost" size="icon-lg">
+                <Menu className="size-5" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-40" align="start">
@@ -151,19 +152,22 @@ export default function Layout2() {
         </NavigationMenu>
 
         {/* 右边的按钮 */}
-        <div className="space-x-2">
+        <div className="flex items-center">
           {/* 切换主题 */}
           <ModeToggle />
+
+          {/* 网站设置 */}
+          <SettingsModal />
 
           {/* 回到服务器主页 */}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                variant="outline"
-                size="icon"
+                variant="ghost"
+                size="icon-lg"
                 onClick={navigateToMediaServerHome}
               >
-                <House className="h-[1.2rem] w-[1.2rem]" />
+                <House className="size-5" />
               </Button>
             </TooltipTrigger>
             <TooltipContent>

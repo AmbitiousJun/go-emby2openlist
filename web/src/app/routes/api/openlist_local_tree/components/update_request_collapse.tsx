@@ -1,7 +1,7 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import CommonCollapse from "~/components/settings_modal/common_collapse";
 import { LOCAL_STORAGE_KEY_API_SECRET } from "~/components/settings_modal/settings_modal";
-import toastUtils from "~/utils/toast";
 
 const LOCAL_STORAGE_KEY_FORCE_REFRESH =
   "api:openlist_local_tree:update_request:force_request";
@@ -75,7 +75,7 @@ export default function UpdateRequestCollapse() {
       // 1 校验密钥
       const secret = localStorage.getItem(LOCAL_STORAGE_KEY_API_SECRET);
       if (!secret) {
-        toastUtils.info("请先设置接口密钥");
+        toast.info("请先设置接口密钥");
         return;
       }
 
@@ -104,16 +104,16 @@ export default function UpdateRequestCollapse() {
       };
 
       if (!res.success) {
-        toastUtils.warn(res.message);
+        toast.warning(res.message);
         return;
       }
-      toastUtils.success(res.message);
+      toast.success(res.message);
       updatePrefixHistoriesAndSave(filterPrefix);
     } catch (err) {
       if (err instanceof Error) {
         err = err.message;
       }
-      toastUtils.error(`手动更新目录树异常: ${err}`);
+      toast.error(`手动更新目录树异常: ${err}`);
     } finally {
       setUpdating(false);
     }

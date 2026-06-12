@@ -1,7 +1,7 @@
 import Convert from "ansi-to-html";
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { LOCAL_STORAGE_KEY_API_SECRET } from "~/components/settings_modal/settings_modal";
-import toastUtils from "~/utils/toast";
 
 const convert = new Convert();
 
@@ -16,7 +16,7 @@ export default function Log() {
     // 1 校验密钥
     const secret = localStorage.getItem(LOCAL_STORAGE_KEY_API_SECRET);
     if (!secret) {
-      toastUtils.info("请先配置接口密钥");
+      toast.info("请先配置接口密钥");
       return;
     }
 
