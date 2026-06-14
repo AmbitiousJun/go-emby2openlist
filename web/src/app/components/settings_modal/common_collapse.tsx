@@ -1,5 +1,13 @@
+import { ChevronDownIcon } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
+import { Button } from "~/components/ui/button";
+import { Card, CardContent } from "~/components/ui/card";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "~/components/ui/collapsible";
 
 export type CommonCollapseProps = {
   title: string;
@@ -15,19 +23,24 @@ export default function CommonCollapse({
   const [checked, setChecked] = useState(defaultChecked ?? false);
 
   return (
-    <div className="collapse collapse-arrow bg-base-100 border border-base-300">
-      <input
-        type="checkbox"
-        className="peer"
-        checked={checked}
-        onChange={(e) => setChecked(e.target.checked)}
-      />
-      <div className="collapse-title font-semibold after:start-5 after:end-auto pe-4 ps-12 bg-accent text-accent-content">
-        {title}
-      </div>
-      <div className="collapse-content text-sm bg-base-200 text-base-content">
-        {children}
-      </div>
-    </div>
+    <Card size="sm" className="mx-auto w-full">
+      <CardContent>
+        <Collapsible
+          className="rounded-md data-[state=open]:bg-muted"
+          open={checked}
+          onOpenChange={setChecked}
+        >
+          <CollapsibleTrigger asChild>
+            <Button variant="ghost" className="group w-full">
+              {title}
+              <ChevronDownIcon className="ml-auto group-data-[state=open]:rotate-180" />
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="flex flex-col items-start gap-2 p-2.5 pt-0 text-sm">
+            {children}
+          </CollapsibleContent>
+        </Collapsible>
+      </CardContent>
+    </Card>
   );
 }
