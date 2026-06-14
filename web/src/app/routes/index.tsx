@@ -53,13 +53,13 @@ export default function Index() {
       </div>
 
       <div className="w-full px-4 mx-auto flex flex-wrap justify-center items-center gap-4">
-        <nav className="w-[300px] h-[200px] rounded-3xl border border-accent-foreground p-6 shadow-md space-y-4">
+        <nav className="w-[300px] h-[200px] rounded-3xl border border-primary p-6 shadow-md space-y-4">
           <p className="leading-6 text-center">快速导航</p>
           <ul>
             {resources.map(({ href, text, icon }) => (
               <li key={href}>
                 <a
-                  className="group flex items-center gap-3 self-stretch p-3 leading-normal hover:underline hover:text-chart-4"
+                  className="group flex items-center gap-3 self-stretch p-3 leading-normal hover:underline hover:text-primary"
                   href={href}
                   target="_blank"
                   rel="noreferrer"
@@ -75,7 +75,7 @@ export default function Index() {
         <a href="https://star-history.com/#AmbitiousJun/go-emby2openlist&Date">
           <img
             alt="Star History Chart"
-            className="rounded-3xl w-[300px] h-[200px] border border-accent-foreground shadow-md"
+            className="rounded-3xl w-[300px] h-[200px] border border-primary shadow-md"
             src={
               theme === "dark"
                 ? "https://api.star-history.com/svg?repos=AmbitiousJun/go-emby2openlist&type=Date&theme=dark"

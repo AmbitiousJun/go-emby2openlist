@@ -2,6 +2,9 @@ import Convert from "ansi-to-html";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { LOCAL_STORAGE_KEY_API_SECRET } from "~/components/settings_modal/settings_modal";
+import { Checkbox } from "~/components/ui/checkbox";
+import { Field } from "~/components/ui/field";
+import { Label } from "~/components/ui/label";
 
 const convert = new Convert();
 
@@ -10,6 +13,7 @@ export default function Log() {
   const isAutoScrollingRef = useRef(false);
   const [logs, setLogs] = useState<string[]>([]);
   const [autoScrollToBottom, setAutoScrollToBottom] = useState(true);
+  const [autoWrapContent, setAutoWrapContent] = useState(false);
 
   // 路由加载完成时自动建立 WebSocket 连接读取日志
   useEffect(() => {
@@ -102,23 +106,32 @@ export default function Log() {
   };
 
   return (
-    <div className="w-full lg:px-48 max-lg:px-12 space-y-6 pb-12">
-      <fieldset className="fieldset bg-base-100 border-base-300 rounded-box w-64 border p-4">
+    <div className="w-full px-12 lg:px-48 space-y-6 pb-12">
+      <fieldset className="fieldset border-primary rounded-md w-full border p-4 flex flex-wrap gap-4">
         <legend className="fieldset-legend">终端选项</legend>
-        <label className="label">
-          <input
-            type="checkbox"
-            className="toggle toggle-accent"
+        <Field orientation="horizontal" className="w-fit">
+          <Checkbox
+            id="auto-scroll-to-bottom"
             checked={autoScrollToBottom}
-            onChange={(e) => setAutoScrollToBottom(e.target.checked)}
+            onCheckedChange={(e) =>
+              setAutoScrollToBottom(e.valueOf() as boolean)
+            }
           />
-          自动滚动到底部
-        </label>
+          <Label htmlFor="auto-scroll-to-bottom">自动滚动到底部</Label>
+        </Field>
+        <Field orientation="horizontal" className="w-fit">
+          <Checkbox
+            id="auto-wrap-content"
+            checked={autoWrapContent}
+            onCheckedChange={(e) => setAutoWrapContent(e.valueOf() as boolean)}
+          />
+          <Label htmlFor="auto-wrap-content">自动换行</Label>
+        </Field>
       </fieldset>
 
       <div
         ref={logRef}
-        className="h-[calc(100vh-18rem)] overflow-auto rounded-lg bg-neutral text-neutral-content p-4 font-mono text-sm whitespace-pre-wrap"
+        className={`h-[calc(100vh-18rem)] overflow-auto rounded-lg bg-secondary text-secondary-foreground p-4 font-mono text-sm ${autoWrapContent ? "whitespace-pre-wrap" : "whitespace-pre"}`}
         onScroll={(e) => handleScroll(e.currentTarget)}
       >
         {logs.map((log, i) => (

@@ -43,7 +43,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <TooltipProvider>{children}</TooltipProvider>
         <ScrollRestoration />
         <Scripts />
-        <Toaster richColors position="top-right" offset={{ top: 100 }} />
+        <Toaster richColors />
       </body>
     </html>
   );
