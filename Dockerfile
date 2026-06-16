@@ -24,7 +24,11 @@ WORKDIR /app
 RUN go env -w GOPROXY=https://goproxy.cn
 
 # 复制源码
-COPY . .
+COPY cmd cmd
+COPY main.go main.go
+COPY go.mod go.mod
+COPY internal internal
+COPY web web
 
 # 下载依赖
 RUN go mod download
