@@ -1,0 +1,168 @@
+import { useState } from "react";
+import { toast } from "sonner";
+import CommonCollapse from "~/components/settings_modal/common_collapse";
+import { LOCAL_STORAGE_KEY_API_SECRET } from "~/components/settings_modal/settings_modal";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import { Spinner } from "~/components/ui/spinner";
+import { Switch } from "~/components/ui/switch";
+
+const LOCAL_STORAGE_KEY_FORCE_REFRESH =
+  "api:openlist_local_tree:update_request:force_request";
+const LOCAL_STORAGE_KEY_UPDATE_PREFIX =
+  "api:openlist_local_tree:update_request:update_prefix";
+const LOCAL_STORAGE_KEY_PREFIX_HISTORIES =
+  "api:openlist_local_tree:update_request:prefix_histories";
+
+export default function UpdateRequestCollapse() {
+  const [forceRefreshFlag, setForceRefreshFlag] = useState(
+    localStorage.getItem(LOCAL_STORAGE_KEY_FORCE_REFRESH) ? true : false,
+  );
+  const [prefix, setPrefix] = useState(
+    localStorage.getItem(LOCAL_STORAGE_KEY_UPDATE_PREFIX) ?? "",
+  );
+  const [prefixHistories, setPrefixHistories] = useState<string[]>(
+    JSON.parse(
+      localStorage.getItem(LOCAL_STORAGE_KEY_PREFIX_HISTORIES) ?? "[]",
+    ),
+  );
+  const [updating, setUpdating] = useState(false);
+
+  const updateForceRefreshFlagAndSave = (flag: boolean) => {
+    setForceRefreshFlag(flag);
+    if (flag) {
+      localStorage.setItem(LOCAL_STORAGE_KEY_FORCE_REFRESH, "1");
+    } else {
+      localStorage.removeItem(LOCAL_STORAGE_KEY_FORCE_REFRESH);
+    }
+  };
+
+  const updatePrefixAndSave = (prefix: string) => {
+    setPrefix(prefix);
+    localStorage.setItem(LOCAL_STORAGE_KEY_UPDATE_PREFIX, prefix);
+  };
+
+  const updatePrefixHistoriesAndSave = (newRecord: string) => {
+    // 1 过滤记录
+    const filterRecord = newRecord.trim();
+    if (!filterRecord) {
+      return;
+    }
+    let newHistories = [...prefixHistories];
+
+    // 2 在旧的记录中查找是否有重复的记录
+    const idx = newHistories.indexOf(newRecord);
+    if (idx != -1) {
+      newHistories = newHistories.filter((_, i) => idx != i);
+    }
+
+    // 3 将当前的新记录插入头部
+    const currentLength = newHistories.unshift(newRecord);
+
+    // 4 维护最大个数
+    if (currentLength > 100) {
+      newHistories = newHistories.slice(0, 100);
+    }
+
+    // 5 更新
+    setPrefixHistories(newHistories);
+    localStorage.setItem(
+      LOCAL_STORAGE_KEY_PREFIX_HISTORIES,
+      JSON.stringify(newHistories),
+    );
+  };
+
+  // 调用接口触发后台目录树刷新
+  const handleUpdate = async () => {
+    setUpdating(true);
+    try {
+      // 1 校验密钥
+      const secret = localStorage.getItem(LOCAL_STORAGE_KEY_API_SECRET);
+      if (!secret) {
+        toast.info("请先设置接口密钥");
+        return;
+      }
+
+      // 2 发起请求
+      const filterPrefix = prefix.trim();
+      setPrefix(filterPrefix);
+      const fetchState = await fetch("/ge2o/openlist/local_tree/update", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          secret: secret,
+          prefix: filterPrefix,
+          refresh: forceRefreshFlag,
+        }),
+      });
+
+      // 3 响应解析
+      if (!fetchState.ok || fetchState.status != 200) {
+        throw Error(`请求失败: ${fetchState.statusText}`);
+      }
+      const res = (await fetchState.json()) as {
+        success: boolean;
+        message: string;
+      };
+
+      if (!res.success) {
+        toast.warning(res.message);
+        return;
+      }
+      toast.success(res.message);
+      updatePrefixHistoriesAndSave(filterPrefix);
+    } catch (err) {
+      if (err instanceof Error) {
+        err = err.message;
+      }
+      toast.error(`手动更新目录树异常: ${err}`);
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  return (
+    <CommonCollapse title={"手动更新目录树"} defaultChecked={true}>
+      <div className="space-y-6 w-full">
+        {/* 刷新前缀 */}
+        <div className="w-full flex items-center gap-6 mt-6">
+          <span className="font-bold text-base">路径前缀</span>
+          <Input
+            type="text"
+            className="flex-1"
+            placeholder="在此输入要更新的目录树路径前缀，不指定前缀时进行全量更新"
+            list="prefix-histories-datalist"
+            value={prefix}
+            onChange={(e) => updatePrefixAndSave(e.target.value)}
+          />
+          {/* 历史记录提示 */}
+          <datalist id="prefix-histories-datalist">
+            {prefixHistories.map((item) => (
+              <option value={item} />
+            ))}
+          </datalist>
+        </div>
+
+        {/* 强制刷新 */}
+        <div className="flex items-center gap-6">
+          <span className="font-bold text-base">强制刷新</span>
+
+          <Switch
+            checked={forceRefreshFlag}
+            onCheckedChange={(e) =>
+              updateForceRefreshFlagAndSave(e.valueOf() as boolean)
+            }
+          />
+        </div>
+
+        {/* 更新按钮 */}
+        <Button disabled={updating} onClick={handleUpdate}>
+          {updating && <Spinner data-icon="inline-start" />}
+          {updating ? "请稍候..." : "开始更新"}
+        </Button>
+      </div>
+    </CommonCollapse>
+  );
+}

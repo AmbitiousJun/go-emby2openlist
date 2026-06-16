@@ -1,11 +1,14 @@
 package web
 
 import (
+	"io/fs"
 	"net/http"
 	"regexp"
+	"strings"
 
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/constant"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/logs"
+	web_static "github.com/AmbitiousJun/go-emby2openlist/v2/web"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,6 +22,10 @@ func globalDftHandler(c *gin.Context) {
 		return
 	}
 
+	if handleWebStatic(c) {
+		return
+	}
+
 	// 依次匹配路由规则, 找到其他的处理器
 	for _, rule := range rules {
 		reg := rule[0].(*regexp.Regexp)
@@ -29,6 +36,56 @@ func globalDftHandler(c *gin.Context) {
 			return
 		}
 	}
+}
+
+// handleWebStatic 处理 web 静态资源
+func handleWebStatic(c *gin.Context) (ok bool) {
+	path := c.Request.URL.Path
+
+	if strings.TrimRight(path, "/") == constant.Route_SelfBase {
+		c.Redirect(http.StatusMovedPermanently, constant.Route_Web+"/")
+		return true
+	}
+
+	feFS, err := fs.Sub(web_static.EmbedFS, "dist")
+	if err != nil {
+		logs.Error("获取静态资源文件系统失败: %v", err)
+		return false
+	}
+
+	if !strings.HasPrefix(path, constant.Route_Web) {
+		return false
+	}
+
+	serveIndexHtml := func() {
+		data, err := fs.ReadFile(feFS, "index.html")
+		if err != nil {
+			logs.Error("读取 index.html 失败: %v", err)
+			c.String(http.StatusInternalServerError, "Internal Server Error")
+			return
+		}
+		c.Data(http.StatusOK, "text/html; charset=utf-8", data)
+	}
+
+	filePath := strings.TrimPrefix(path, constant.Route_Web)
+	filePath = strings.TrimPrefix(filePath, "/")
+
+	if filePath == "" {
+		serveIndexHtml()
+		return true
+	}
+
+	// 检查文件是否存在
+	file, err := feFS.Open(filePath)
+	if err != nil {
+		serveIndexHtml()
+		return true
+	}
+	file.Close()
+
+	// 文件存在 直接返回相应的静态资源
+	c.FileFromFS("/"+filePath, http.FS(feFS))
+	return true
 }
 
 // compileRules 编译路由的正则表达式

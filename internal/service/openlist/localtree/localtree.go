@@ -2,11 +2,11 @@ package localtree
 
 import (
 	"fmt"
-	"log"
 	"path/filepath"
 	"time"
 
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/config"
+	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/logs"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/logs/colors"
 )
 
@@ -75,5 +75,5 @@ func startSync(s *Synchronizer) {
 // logf 带上前缀的日志输出
 func logf(c colors.C, format string, v ...any) {
 	s := fmt.Sprintf(format, v...)
-	log.Println(colors.WrapColor(c, "[openlist 目录树]: "+s))
+	logs.Raw("%s%s\n", logs.Now(), colors.WrapColor(c, "[openlist 目录树]: "+s))
 }

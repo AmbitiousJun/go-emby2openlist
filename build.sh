@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# 构建 web 平台
+chmod +x ./build_web.sh
+./build_web.sh
+echo "Built web app"
+
 # 删除dist
 rm -rf ./dist
 

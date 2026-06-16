@@ -5,41 +5,36 @@ on:
     types: [published]
 
 permissions:
-  contents: write  # 授予 GITHUB_TOKEN 写入发布资源的权限
+  contents: write # 授予 GITHUB_TOKEN 写入发布资源的权限
 
 jobs:
   build:
     name: Build and Upload
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Check out the code
-      uses: actions/checkout@v3
-      
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: 1.26.3
+      - name: Check out the code
+        uses: actions/checkout@v3
 
-    - name: Run build script
-      run: ./build.sh
+      - name: Set up NodeJs
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/src/package-lock.json
 
-    - name: Upload binaries to release
-      env:
-        UPLOAD_URL: ${{ github.event.release.upload_url }}
-      run: |
-        # 去掉 {？name,label} 占位符
-        CLEANED_URL="${UPLOAD_URL%\{?name,label\}}"
-        
-        for file in ./dist/*; do
-          echo "Uploading $file..."
-          curl -sSL \
-            -X POST \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Content-Type: application/octet-stream" \
-            --data-binary @"$file" \
-            "$CLEANED_URL?name=$(basename "$file")"
-        done
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.26.3
 
-    - name: Clean up dist directory
-      run: rm -rf ./dist
+      - name: Run build script
+        run: ./build.sh
+
+      - name: Upload binaries to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/**
+
+      - name: Clean up dist directory
+        run: rm -rf ./dist

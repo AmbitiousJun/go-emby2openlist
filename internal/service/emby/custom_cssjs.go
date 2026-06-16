@@ -159,7 +159,7 @@ func loadAllCustomCssJs(forceRefresh bool) {
 		logs.Error("加载自定义脚本异常: %v", err)
 		return
 	}
-	customJsList = jsList
+	customJsList = append(jsList, innerJsAddGe2oWebButton())
 
 	fp = filepath.Join(config.BasePath, constant.CustomCssDirName)
 	cssList, err := loadFiles(fp, ".css", "自定义样式表")
@@ -168,6 +168,52 @@ func loadAllCustomCssJs(forceRefresh bool) {
 		return
 	}
 	customCssList = cssList
+}
+
+// innerJsAddGe2oWebButton 往页面上添加一个跳转到 Ge2o Web 的导航按钮
+func innerJsAddGe2oWebButton() string {
+	return `function doInject() {
+  // 1 获取对应的区域 获取不到则不进行插入
+  const parentElm = document.querySelector(".headerRight");
+  const brotherElm = document.querySelector(".headerCastButton");
+  if (!parentElm || !brotherElm) {
+    setTimeout(doInject);
+    return;
+  }
+
+  // 2 构造按钮
+  const btn = document.createElement("button");
+  btn.setAttribute("is", "paper-icon-button-light");
+  btn.setAttribute("title", "进入 Ge2o Web");
+  btn.setAttribute("aria-label", "进入 Ge2o Web");
+  btn.setAttribute(
+    "class",
+    "headerButton headerSectionItem md-icon paper-icon-button-light",
+  );
+  btn.innerHTML =
+    '<img src="/ge2o/web/favicon.ico" style="width: 1em; height: 1em"/>';
+  btn.onclick = () => {
+    const a = document.createElement("a");
+    a.setAttribute("href", "/ge2o/web/");
+    a.setAttribute("target", "_blank");
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  // 3 循环检测插入
+  setInterval(() => {
+    if (document.contains(btn)) {
+      return;
+    }
+    if (!document.contains(parentElm) || !document.contains(brotherElm)) {
+      return;
+    }
+    parentElm.insertBefore(btn, brotherElm);
+  }, 1000);
+  parentElm.insertBefore(btn, brotherElm);
+}
+doInject();`
 }
 
 // ProxyIndexHtml 代理 index.html 注入自定义脚本样式文件
