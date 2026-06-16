@@ -27,6 +27,7 @@ RUN go env -w GOPROXY=https://goproxy.cn
 COPY cmd cmd
 COPY main.go main.go
 COPY go.mod go.mod
+COPY go.sum go.sum
 COPY internal internal
 COPY web web
 
