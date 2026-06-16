@@ -6,6 +6,6 @@ ssl/*key
 custom-js/*.js
 custom-css/*.css
 openlist-local-tree
-lib
+/lib/
 dist
 **/node_modules/
