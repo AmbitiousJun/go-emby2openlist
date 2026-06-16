@@ -1,5 +1,5 @@
 # 第一阶段: 构建 web 产物包
-FROM node:20-alpine AS web-builder
+FROM node:24-alpine AS web-builder
 
 # 设置工作目录
 WORKDIR /app/web/src
