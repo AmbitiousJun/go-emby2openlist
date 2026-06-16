@@ -1,10 +1,10 @@
 import Convert from "ansi-to-html";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { LOCAL_STORAGE_KEY_API_SECRET } from "~/components/settings_modal/settings_modal";
-import { Checkbox } from "~/components/ui/checkbox";
-import { Field } from "~/components/ui/field";
-import { Label } from "~/components/ui/label";
+import { LOCAL_STORAGE_KEY_API_SECRET } from "../../components/settings_modal/settings_modal";
+import { Checkbox } from "../../components/ui/checkbox";
+import { Field } from "../../components/ui/field";
+import { Label } from "../../components/ui/label";
 
 const convert = new Convert();
 

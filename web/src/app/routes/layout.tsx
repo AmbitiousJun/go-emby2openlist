@@ -1,9 +1,18 @@
-import { House, Menu, Moon, Sun } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Link, Outlet, useLocation, useNavigate } from "react-router";
-import SettingsModal from "~/components/settings_modal/settings_modal";
-import type { Route } from "./+types/layout";
-import { Button } from "~/components/ui/button";
+import { House, Menu } from "lucide-react";
+import { Link, Outlet, useNavigate } from "react-router";
+import { ModeToggle } from "../components/mode_toggle";
+import SettingsModal from "../components/settings_modal/settings_modal";
+import { Button } from "../components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuPortal,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "../components/ui/dropdown-menu";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -12,28 +21,13 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-} from "~/components/ui/navigation-menu";
-import { ModeToggle } from "~/components/mode_toggle";
+} from "../components/ui/navigation-menu";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "~/components/ui/tooltip";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-import { toast } from "sonner";
+} from "../components/ui/tooltip";
+import type { Route } from "./+types/layout";
 
 export function meta({}: Route.MetaArgs) {
   return [
