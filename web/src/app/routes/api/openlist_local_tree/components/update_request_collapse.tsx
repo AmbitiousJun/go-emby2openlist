@@ -2,6 +2,10 @@ import { useState } from "react";
 import { toast } from "sonner";
 import CommonCollapse from "~/components/settings_modal/common_collapse";
 import { LOCAL_STORAGE_KEY_API_SECRET } from "~/components/settings_modal/settings_modal";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import { Spinner } from "~/components/ui/spinner";
+import { Switch } from "~/components/ui/switch";
 
 const LOCAL_STORAGE_KEY_FORCE_REFRESH =
   "api:openlist_local_tree:update_request:force_request";
@@ -121,13 +125,13 @@ export default function UpdateRequestCollapse() {
 
   return (
     <CommonCollapse title={"手动更新目录树"} defaultChecked={true}>
-      <div className="space-y-6">
+      <div className="space-y-6 w-full">
         {/* 刷新前缀 */}
-        <div className="flex items-center space-x-6 mt-6">
+        <div className="w-full flex items-center gap-6 mt-6">
           <span className="font-bold text-base">路径前缀</span>
-          <input
+          <Input
             type="text"
-            className="input input-accent flex-1"
+            className="flex-1"
             placeholder="在此输入要更新的目录树路径前缀，不指定前缀时进行全量更新"
             list="prefix-histories-datalist"
             value={prefix}
@@ -142,24 +146,22 @@ export default function UpdateRequestCollapse() {
         </div>
 
         {/* 强制刷新 */}
-        <div className="flex items-center space-x-6">
+        <div className="flex items-center gap-6">
           <span className="font-bold text-base">强制刷新</span>
-          <input
-            type="checkbox"
-            className="toggle toggle-accent"
+
+          <Switch
             checked={forceRefreshFlag}
-            onChange={(e) => updateForceRefreshFlagAndSave(e.target.checked)}
+            onCheckedChange={(e) =>
+              updateForceRefreshFlagAndSave(e.valueOf() as boolean)
+            }
           />
         </div>
 
         {/* 更新按钮 */}
-        <button
-          className={`btn btn-soft btn-accent ${updating && "btn-disabled"}`}
-          onClick={handleUpdate}
-        >
-          {updating && <span className="loading loading-spinner w-4 h-4" />}
+        <Button disabled={updating} onClick={handleUpdate}>
+          {updating && <Spinner data-icon="inline-start" />}
           {updating ? "请稍候..." : "开始更新"}
-        </button>
+        </Button>
       </div>
     </CommonCollapse>
   );

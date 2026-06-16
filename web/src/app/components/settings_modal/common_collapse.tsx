@@ -26,17 +26,17 @@ export default function CommonCollapse({
     <Card size="sm" className="mx-auto w-full">
       <CardContent>
         <Collapsible
-          className="rounded-md data-[state=open]:bg-muted"
+          className="rounded-md data-[state=open]:bg-muted data-[state=open]:pt-2.5"
           open={checked}
           onOpenChange={setChecked}
         >
           <CollapsibleTrigger asChild>
-            <Button variant="ghost" className="group w-full">
+            <Button variant="ghost" className="group w-full text-lg px-2.5">
               {title}
               <ChevronDownIcon className="ml-auto group-data-[state=open]:rotate-180" />
             </Button>
           </CollapsibleTrigger>
-          <CollapsibleContent className="flex flex-col items-start gap-2 p-2.5 pt-0 text-sm">
+          <CollapsibleContent className="w-full flex flex-col items-start gap-2 p-5 pt-0 text-sm">
             {children}
           </CollapsibleContent>
         </Collapsible>
