@@ -1,4 +1,20 @@
-# 第一阶段：构建阶段
+# 第一阶段: 构建 web 产物包
+FROM node:20-alpine AS web-builder
+
+# 设置工作目录
+WORKDIR /app/web/src
+
+# 拷贝依赖声明 安装依赖
+COPY web/src/package*.json ./
+RUN npm ci
+
+# 拷贝源码
+COPY web/src .
+
+# 执行构建
+RUN npm run build
+
+# 第二阶段：构建 Go 二进制文件
 FROM golang:1.26-alpine AS builder
 
 # 设置工作目录
@@ -7,21 +23,19 @@ WORKDIR /app
 # 设置代理
 RUN go env -w GOPROXY=https://goproxy.cn
 
-# 复制 go.mod 和 go.sum 文件
-COPY go.mod go.sum ./
+# 复制源码
+COPY . .
 
 # 下载依赖
 RUN go mod download
 
-# 复制源码
-COPY cmd cmd
-COPY internal internal
-COPY main.go main.go
+# 复制前端产物包
+COPY --from=web-builder /app/web/src/build/client ./web/dist
 
 # 编译源码成静态链接的二进制文件
 RUN CGO_ENABLED=0 go build -tags=goexperiment.jsonv2 -a -installsuffix cgo -ldflags="-X main.ginMode=release" -o main .
 
-# 第二阶段：运行阶段
+# 第三阶段：运行阶段
 FROM alpine:latest
 
 # 设置时区
