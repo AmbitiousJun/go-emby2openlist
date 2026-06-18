@@ -1,8 +1,8 @@
 import { House, Menu } from "lucide-react";
 import { Link, Outlet, useNavigate } from "react-router";
-import { ModeToggle } from "../components/mode_toggle";
-import SettingsModal from "../components/settings_modal/settings_modal";
-import { Button } from "../components/ui/button";
+import { ModeToggle } from "~/components/mode_toggle";
+import SettingsModal from "~/components/settings_modal/settings_modal";
+import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +12,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "../components/ui/dropdown-menu";
+} from "~/components/ui/dropdown-menu";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -21,12 +21,12 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-} from "../components/ui/navigation-menu";
+} from "~/components/ui/navigation-menu";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "../components/ui/tooltip";
+} from "~/components/ui/tooltip";
 import type { Route } from "./+types/layout";
 
 export function meta({}: Route.MetaArgs) {
