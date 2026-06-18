@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import CommonCollapse from "../../../../components/settings_modal/common_collapse";
-import { LOCAL_STORAGE_KEY_API_SECRET } from "../../../../components/settings_modal/settings_modal";
-import { Button } from "../../../../components/ui/button";
-import { Input } from "../../../../components/ui/input";
-import { Spinner } from "../../../../components/ui/spinner";
-import { Switch } from "../../../../components/ui/switch";
+import CommonCollapse from "~/components/settings_modal/common_collapse";
+import { LOCAL_STORAGE_KEY_API_SECRET } from "~/components/settings_modal/settings_modal";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import { Spinner } from "~/components/ui/spinner";
+import { Switch } from "~/components/ui/switch";
 
 const LOCAL_STORAGE_KEY_FORCE_REFRESH =
   "api:openlist_local_tree:update_request:force_request";

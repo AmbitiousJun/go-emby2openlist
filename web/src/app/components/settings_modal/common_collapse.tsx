@@ -1,13 +1,13 @@
 import { ChevronDownIcon } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
-import { Button } from "../../components/ui/button";
-import { Card, CardContent } from "../../components/ui/card";
+import { Button } from "~/components/ui/button";
+import { Card, CardContent } from "~/components/ui/card";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "../../components/ui/collapsible";
+} from "~/components/ui/collapsible";
 
 export type CommonCollapseProps = {
   title: string;

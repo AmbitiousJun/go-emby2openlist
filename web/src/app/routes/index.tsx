@@ -1,7 +1,7 @@
-import logoImg from "../assets/logo.png";
+import logoImg from "~/assets/logo.png";
 import { FaGithub } from "react-icons/fa";
 import { Cog } from "lucide-react";
-import { useTheme } from "../components/theme_provider";
+import { useTheme } from "~/components/theme_provider";
 
 export default function Index() {
   const { theme } = useTheme();

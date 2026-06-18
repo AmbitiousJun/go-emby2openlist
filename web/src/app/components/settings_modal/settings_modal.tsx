@@ -1,7 +1,7 @@
 import { Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Button } from "../ui/button";
+import { Button } from "~/components/ui/button";
 import {
   Dialog,
   DialogClose,
@@ -10,16 +10,16 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../ui/dialog";
-import { DropdownMenuSeparator } from "../ui/dropdown-menu";
-import { Field, FieldGroup } from "../ui/field";
+} from "~/components/ui/dialog";
+import { DropdownMenuSeparator } from "~/components/ui/dropdown-menu";
+import { Field, FieldGroup } from "~/components/ui/field";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
   InputGroupText,
-} from "../ui/input-group";
-import { Spinner } from "../ui/spinner";
+} from "~/components/ui/input-group";
+import { Spinner } from "~/components/ui/spinner";
 
 export const LOCAL_STORAGE_KEY_API_SECRET = "api_secret";
 
