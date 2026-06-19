@@ -3,7 +3,7 @@ name: Build and Push Docker Images
 on:
   push:
     tags:
-      - 'v*.*.*'  # 仅在推送符合这个模式的标签时触发
+      - "v*.*.*" # 仅在推送符合这个模式的标签时触发
 
 jobs:
   build:
@@ -28,7 +28,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          platforms: linux/386,linux/arm/v7,linux/amd64,linux/arm64
+          platforms: linux/arm/v7,linux/amd64,linux/arm64
           push: true
           tags: |
             ambitiousjun/go-emby2openlist:${{ github.ref_name }}
