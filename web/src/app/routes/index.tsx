@@ -14,7 +14,7 @@ export default function Index() {
 
       <div className="flex flex-wrap gap-2 items-center justify-center">
         <a
-          href="https://github.com/AmbitiousJun/go-emby2openlist/tree/v2.7.1"
+          href="https://github.com/AmbitiousJun/go-emby2openlist/tree/v2.8.0"
           target="_blank"
         >
           <img src="https://img.shields.io/github/v/tag/AmbitiousJun/go-emby2openlist"></img>
@@ -23,7 +23,7 @@ export default function Index() {
           href="https://hub.docker.com/r/ambitiousjun/go-emby2openlist/tags"
           target="_blank"
         >
-          <img src="https://img.shields.io/docker/image-size/ambitiousjun/go-emby2openlist/v2.7.1"></img>
+          <img src="https://img.shields.io/docker/image-size/ambitiousjun/go-emby2openlist/v2.8.0"></img>
         </a>
         <a
           href="https://hub.docker.com/r/ambitiousjun/go-emby2openlist/tags"
@@ -95,7 +95,7 @@ const resources = [
     icon: <FaGithub size={24} />,
   },
   {
-    href: "https://github.com/AmbitiousJun/go-emby2openlist/blob/v2.7.1/config-example.yml",
+    href: "https://github.com/AmbitiousJun/go-emby2openlist/blob/v2.8.0/config-example.yml",
     text: "示例配置",
     icon: <Cog />,
   },

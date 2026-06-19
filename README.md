@@ -5,8 +5,8 @@
 <h1 align="center">go-emby2openlist</h1>
 
 <div align="center">
-  <a href="https://github.com/AmbitiousJun/go-emby2openlist/tree/v2.7.1"><img src="https://img.shields.io/github/v/tag/AmbitiousJun/go-emby2openlist"></img></a>
-  <a href="https://hub.docker.com/r/ambitiousjun/go-emby2openlist/tags"><img src="https://img.shields.io/docker/image-size/ambitiousjun/go-emby2openlist/v2.7.1"></img></a>
+  <a href="https://github.com/AmbitiousJun/go-emby2openlist/tree/v2.8.0"><img src="https://img.shields.io/github/v/tag/AmbitiousJun/go-emby2openlist"></img></a>
+  <a href="https://hub.docker.com/r/ambitiousjun/go-emby2openlist/tags"><img src="https://img.shields.io/docker/image-size/ambitiousjun/go-emby2openlist/v2.8.0"></img></a>
   <a href="https://hub.docker.com/r/ambitiousjun/go-emby2openlist/tags"><img src="https://img.shields.io/docker/pulls/ambitiousjun/go-emby2openlist"></img></a>
   <a href="https://github.com/AmbitiousJun/go-emby2openlist/releases/latest"><img src="https://img.shields.io/github/downloads/AmbitiousJun/go-emby2openlist/total"></img></a>
   <a href="https://goreportcard.com/report/github.com/AmbitiousJun/go-emby2openlist/v2"><img src="https://goreportcard.com/badge/github.com/AmbitiousJun/go-emby2openlist/v2"></img></a>
@@ -77,17 +77,11 @@
   >
   > **非会员是否限速**：自行测试
   >
-  > 
-  >
   > 示例图 ↓：
   >
   > <img src="assets/2024-08-31-17-15-53.jpg" />
   >
-  > 
-  >
   > 转码资源直链已达到可正常使用的标准，Emby Web, Emby for AndroidTV 以及其他大部分客户端都可以正常播放，并且不会因为直链过期而中断
-  >
-  > 
   >
   > 局限：
   >
@@ -96,7 +90,7 @@
   > 视频本身的内封字幕会丢失，不过若存在转码字幕，也会适配到转码版本的 PlaybackInfo 信息中，示例图 ↓：
   >
   > <img src="assets/2025-04-27-20-15-06.png"/>
-  
+
 - websocket 代理
 
 - 客户端防转码（转容器）
@@ -118,25 +112,21 @@
 
 - 大接口缓存（OpenList 转码资源是通过代理并修改 PlaybackInfo 接口实现，请求比较耗时，每次大约 2~3 秒左右，目前已经利用 Go 语言的并发优势，尽力地将接口处理逻辑异步化，快的话 1 秒即可请求完成，该接口的缓存时间目前固定为 12 小时，后续如果出现异常再作调整）
 
-
-
 ## 已测试并支持的客户端
 
-| 名称                                             | 最后测试版本 | 原画 | 其他说明（原画）                                             | 阿里转码 | 其他说明（阿里转码）                                         |
-| ------------------------------------------------ | ------------ | ---- | ------------------------------------------------------------ | -------- | ------------------------------------------------------------ |
-| [`Gemby`](https://github.com/AmbitiousJun/gemby) | `v2.6.4`     | ✅    | ——                                                           | ✅        | ——                                                           |
-| `Emby Web`                                       | `4.8.8.0`    | ✅    | ——                                                           | ✅        | 1. 转码字幕有概率挂载不上<br />2. 可以挂载原画字幕           |
-| `Emby for iOS`                                   | ——           | ❓    | ~~没高级订阅测不了~~                                         | ❓        | ~~没高级订阅测不了~~                                         |
-| `Emby for macOS`                                 | ——           | ❓    | ~~没高级订阅测不了~~                                         | ❓        | ~~没高级订阅测不了~~                                         |
-| `Emby for Android`                               | `3.4.23`     | ✅    | ——                                                           | ✅        | ——                                                           |
-| `Emby for AndroidTV`                             | `2.0.95g`    | ✅    | 遥控器调进度可能会触发直链服务器的频繁请求限制，导致视频短暂不可播情况 | ✅        | 无法挂载字幕                                                 |
-| `Fileball`                                       | ——           | ✅    | ——                                                           | ✅        | ——                                                           |
-| `Infuse`                                         | ——           | ✅    | 在设置中将缓存方式设置为`不缓存`可有效防止触发频繁请求       | ❌        | ——                                                           |
-| `VidHub`                                         | ——           | ✅    | 仅测试至 `1.0.7` 版本                                        | ✅        | 仅测试至 `1.0.7` 版本                                        |
-| `Stream Music`                                   | `1.3.8`      | ✅    | ——                                                           | ——       | ——                                                           |
-| `Emby for Kodi Next Gen`                         | `11.1.13`    | ✅    | ——                                                           | ✅        | 1. 需要开启插件设置：**播放/视频转码/prores**<br />2. 播放时若未显示转码版本选择，需重置本地数据库重新全量扫描资料库<br />3. 某个版本播放失败需要切换版本时，必须重启 kodi 才能重新选择版本<br />4. 无法挂载字幕 |
-
-
+| 名称                                             | 最后测试版本 | 原画 | 其他说明（原画）                                                       | 阿里转码 | 其他说明（阿里转码）                                                                                                                                                                                             |
+| ------------------------------------------------ | ------------ | ---- | ---------------------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`Gemby`](https://github.com/AmbitiousJun/gemby) | `v2.6.4`     | ✅   | ——                                                                     | ✅       | ——                                                                                                                                                                                                               |
+| `Emby Web`                                       | `4.8.8.0`    | ✅   | ——                                                                     | ✅       | 1. 转码字幕有概率挂载不上<br />2. 可以挂载原画字幕                                                                                                                                                               |
+| `Emby for iOS`                                   | ——           | ❓   | ~~没高级订阅测不了~~                                                   | ❓       | ~~没高级订阅测不了~~                                                                                                                                                                                             |
+| `Emby for macOS`                                 | ——           | ❓   | ~~没高级订阅测不了~~                                                   | ❓       | ~~没高级订阅测不了~~                                                                                                                                                                                             |
+| `Emby for Android`                               | `3.4.23`     | ✅   | ——                                                                     | ✅       | ——                                                                                                                                                                                                               |
+| `Emby for AndroidTV`                             | `2.0.95g`    | ✅   | 遥控器调进度可能会触发直链服务器的频繁请求限制，导致视频短暂不可播情况 | ✅       | 无法挂载字幕                                                                                                                                                                                                     |
+| `Fileball`                                       | ——           | ✅   | ——                                                                     | ✅       | ——                                                                                                                                                                                                               |
+| `Infuse`                                         | ——           | ✅   | 在设置中将缓存方式设置为`不缓存`可有效防止触发频繁请求                 | ❌       | ——                                                                                                                                                                                                               |
+| `VidHub`                                         | ——           | ✅   | 仅测试至 `1.0.7` 版本                                                  | ✅       | 仅测试至 `1.0.7` 版本                                                                                                                                                                                            |
+| `Stream Music`                                   | `1.3.8`      | ✅   | ——                                                                     | ——       | ——                                                                                                                                                                                                               |
+| `Emby for Kodi Next Gen`                         | `11.1.13`    | ✅   | ——                                                                     | ✅       | 1. 需要开启插件设置：**播放/视频转码/prores**<br />2. 播放时若未显示转码版本选择，需重置本地数据库重新全量扫描资料库<br />3. 某个版本播放失败需要切换版本时，必须重启 kodi 才能重新选择版本<br />4. 无法挂载字幕 |
 
 ## 前置环境准备
 
@@ -150,13 +140,9 @@
 
    > 目前我知道的比较好用的服务有两个：[rclone](https://rclone.org/) 和 [CloudDrive2](https://www.clouddrive2.com/)(简称 cd2)
    >
-   > 
-   >
    > 如果你的网盘跟我一样是阿里云盘，推荐使用 cd2 直接连接阿里云盘，然后根路径和 OpenList 保持即可
    >
    > 在 cd2 中，找到一个 `最大缓存大小` 的配置，推荐将其设为一个极小值（我是 1MB），这样在刮削的时候就不会消耗太多三方权益包的流量
-   >
-   > 
    >
    > ⚠️ 不推荐中间服务直接去连接 OpenList 的 WebDav 服务，如果 OpenList Token 刷新失败或者是请求频繁被暂时屏蔽，会导致系统本地的挂载路径丢失，Emby 就会认为资源被删除了，然后元数据就丢了，再重新挂载回来后就需要重新刮削了。
 
@@ -175,7 +161,7 @@
 1. 获取代码
 
 ```shell
-git clone --branch v2.7.1 --depth 1 https://github.tbedu.top/https://github.com/AmbitiousJun/go-emby2openlist
+git clone --branch v2.8.0 --depth 1 https://github.tbedu.top/https://github.com/AmbitiousJun/go-emby2openlist
 cd go-emby2openlist
 ```
 
@@ -248,7 +234,7 @@ docker image prune -f
 
 > 示例配置为完整版配置，首次部署可以参照[核心配置](https://github.com/AmbitiousJun/go-emby2openlist/issues/108#issuecomment-2928599051)优先跑通程序，再按需补充其他配置
 
-参考[示例配置](https://github.com/AmbitiousJun/go-emby2openlist/blob/v2.7.1/config-example.yml)，配置好自己的服务器信息，保存并命名为 `config.yml`
+参考[示例配置](https://github.com/AmbitiousJun/go-emby2openlist/blob/v2.8.0/config-example.yml)，配置好自己的服务器信息，保存并命名为 `config.yml`
 
 2. 创建 docker-compose 文件
 
@@ -258,7 +244,7 @@ docker image prune -f
 version: "3.1"
 services:
   go-emby2openlist:
-    image: ambitiousjun/go-emby2openlist:v2.7.1
+    image: ambitiousjun/go-emby2openlist:v2.8.0
     environment:
       - TZ=Asia/Shanghai
       - GIN_MODE=release
@@ -311,12 +297,12 @@ docker-compose up -d --build
 
 **示例脚本：**
 
-| 描述                  | 获取脚本                                                     | 自用优化版本                                                 |
-| --------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| 生成外部播放器按钮    | [ExternalPlayers.js](https://emby-external-url.7o7o.cc/embyWebAddExternalUrl/embyLaunchPotplayer.js) | ---                                                          |
+| 描述                  | 获取脚本                                                                                                                | 自用优化版本                                                                                                          |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| 生成外部播放器按钮    | [ExternalPlayers.js](https://emby-external-url.7o7o.cc/embyWebAddExternalUrl/embyLaunchPotplayer.js)                    | ---                                                                                                                   |
 | 首页轮播图            | [emby-swiper.js](https://raw.githubusercontent.com/newday-life/emby-web-mod/refs/heads/main/emby-swiper/emby-swiper.js) | [媒体库合并 + 每日清空缓存](https://github.com/AmbitiousJun/emby-css-js/raw/refs/heads/main/custom-js/emby-swiper.js) |
-| 隐藏无图片演员        | [actorPlus.js](https://raw.githubusercontent.com/newday-life/emby-web-mod/refs/heads/main/actorPlus/actorPlus.js) | ---                                                          |
-| 键盘 w/s 控制播放音量 | [audio-keyboard.js](https://github.com/AmbitiousJun/emby-css-js/blob/main/custom-js/audio-keyboard.js) | ---                                                          |
+| 隐藏无图片演员        | [actorPlus.js](https://raw.githubusercontent.com/newday-life/emby-web-mod/refs/heads/main/actorPlus/actorPlus.js)       | ---                                                                                                                   |
+| 键盘 w/s 控制播放音量 | [audio-keyboard.js](https://github.com/AmbitiousJun/emby-css-js/blob/main/custom-js/audio-keyboard.js)                  | ---                                                                                                                   |
 
 ## 使用说明 自定义注入 web css 样式表
 
@@ -328,9 +314,9 @@ docker-compose up -d --build
 
 **示例样式：**
 
-| 描述                 | 获取样式                                                    | 自用优化版本                                                 |
-| -------------------- | ----------------------------------------------------------- | ------------------------------------------------------------ |
-| 调整音量调整控件位置 | [音量条+控件修改.css](https://t.me/Emby_smzase1/74)         | ---                                                          |
+| 描述                 | 获取样式                                                    | 自用优化版本                                                                                                  |
+| -------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| 调整音量调整控件位置 | [音量条+控件修改.css](https://t.me/Emby_smzase1/74)         | ---                                                                                                           |
 | 节目界面样式美化     | [节目界面.txt](https://t.me/embycustomcssjs/10?comment=159) | [下拉框元素对齐](https://github.com/AmbitiousJun/emby-css-js/raw/refs/heads/main/custom-css/show-display.css) |
 
 ## 使用说明 OpenList 本地目录树生成
@@ -427,14 +413,14 @@ docker-compose up -d --build
 
 ### 其他配置
 
-| 属性名                      | 描述                                                         | 示例值        |
-| --------------------------- | :----------------------------------------------------------- | ------------- |
-| `openlist`                  | ---                                                          | ---           |
-| > `local-tree-gen`          | ---                                                          | ---           |
+| 属性名                      | 描述                                                                                                                                                                                                                                                                                                                                                        | 示例值        |
+| --------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
+| `openlist`                  | ---                                                                                                                                                                                                                                                                                                                                                         | ---           |
+| > `local-tree-gen`          | ---                                                                                                                                                                                                                                                                                                                                                         | ---           |
 | >> `auto-remove-max-count`  | 此配置相当于为本地目录树加了个保险措施，防止 openlist 存储挂载出现异常后，程序误以为远程文件被删除，而将本地已扫描完成的目录树清空的情况。<br /><br />具体配置值需以自己 openlist 的总文件数为参考（可留意首次全量扫描目录树后的日志输出），建议配置为总文件数的 3/4 左右大小，当程序即将要删除的文件数目超过这个数值时，会停止删除操作，并在日志中输出警告 | `6000`        |
-| >> `refresh-interval`       | 本地目录树刷新间隔，单位：分钟                               | `60`          |
-| >> `scan-prefixes`          | 指定 openlist 要扫描到本地的前缀列表，没有配置则默认全量扫描 | ---           |
-| &gt;&gt; `allow-containers` | 容器白名单，避免非必要的文件被处理；已经配置在 `strm, virtual, music` 属性中的容器默认进白名单，无需重复配置 | `ass,srt,sub` |
+| >> `refresh-interval`       | 本地目录树刷新间隔，单位：分钟                                                                                                                                                                                                                                                                                                                              | `60`          |
+| >> `scan-prefixes`          | 指定 openlist 要扫描到本地的前缀列表，没有配置则默认全量扫描                                                                                                                                                                                                                                                                                                | ---           |
+| &gt;&gt; `allow-containers` | 容器白名单，避免非必要的文件被处理；已经配置在 `strm, virtual, music` 属性中的容器默认进白名单，无需重复配置                                                                                                                                                                                                                                                | `ass,srt,sub` |
 
 ### 额外说明
 
