@@ -172,6 +172,10 @@ func loadAllCustomCssJs(forceRefresh bool) {
 
 // innerJsAddGe2oWebButton 往页面上添加一个跳转到 Ge2o Web 的导航按钮
 func innerJsAddGe2oWebButton() string {
+	if !config.C.Ge2o.Web.IsEmbyBtnEnabled() || !config.C.Ge2o.Web.IsEnabled() {
+		return ""
+	}
+
 	return `function doInject() {
   // 1 获取对应的区域 获取不到则不进行插入
   const parentElm = document.querySelector(".headerRight");

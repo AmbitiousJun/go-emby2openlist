@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/config"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/constant"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/util/logs"
 	web_static "github.com/AmbitiousJun/go-emby2openlist/v2/web"
@@ -40,6 +41,10 @@ func globalDftHandler(c *gin.Context) {
 
 // handleWebStatic 处理 web 静态资源
 func handleWebStatic(c *gin.Context) (ok bool) {
+	if !config.C.Ge2o.Web.IsEnabled() {
+		return false
+	}
+
 	path := c.Request.URL.Path
 
 	if strings.TrimRight(path, "/") == constant.Route_SelfBase {
