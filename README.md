@@ -473,10 +473,10 @@ HTTP 状态码固定为 `200`，通过 body 判断结果。
 
 ## Star History
 
-<a href="https://star-history.com/#AmbitiousJun/go-emby2openlist&Date">
+<a href="https://www.star-history.com/?type=date&repos=AmbitiousJun%2Fgo-emby2openlist">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=AmbitiousJun/go-emby2openlist&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=AmbitiousJun/go-emby2openlist&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=AmbitiousJun/go-emby2openlist&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=AmbitiousJun/go-emby2openlist&type=date&theme=dark&legend=top-left&sealed_token=NnSqFDlwZFomlMt84uRgyywdYAVZbYXzUtmkfOqrrxN6S7LNobHNkPWDHTs7C3pVakrGNrYbdTfcZSr8i6_CpqBwSFskZXJFoDS_a8cI9JGrHUiPEiCSyQ" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=AmbitiousJun/go-emby2openlist&type=date&legend=top-left&sealed_token=NnSqFDlwZFomlMt84uRgyywdYAVZbYXzUtmkfOqrrxN6S7LNobHNkPWDHTs7C3pVakrGNrYbdTfcZSr8i6_CpqBwSFskZXJFoDS_a8cI9JGrHUiPEiCSyQ" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=AmbitiousJun/go-emby2openlist&type=date&legend=top-left&sealed_token=NnSqFDlwZFomlMt84uRgyywdYAVZbYXzUtmkfOqrrxN6S7LNobHNkPWDHTs7C3pVakrGNrYbdTfcZSr8i6_CpqBwSFskZXJFoDS_a8cI9JGrHUiPEiCSyQ" />
  </picture>
 </a>

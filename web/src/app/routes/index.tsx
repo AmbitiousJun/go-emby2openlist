@@ -72,8 +72,8 @@ export default function Index() {
             className="rounded-3xl w-[300px] h-[200px] border border-primary shadow-md"
             src={
               theme === "dark"
-                ? "https://api.star-history.com/svg?repos=AmbitiousJun/go-emby2openlist&type=Date&theme=dark"
-                : "https://api.star-history.com/svg?repos=AmbitiousJun/go-emby2openlist&type=Date"
+                ? "https://api.star-history.com/chart?repos=AmbitiousJun/go-emby2openlist&type=date&theme=dark&legend=top-left&sealed_token=NnSqFDlwZFomlMt84uRgyywdYAVZbYXzUtmkfOqrrxN6S7LNobHNkPWDHTs7C3pVakrGNrYbdTfcZSr8i6_CpqBwSFskZXJFoDS_a8cI9JGrHUiPEiCSyQ"
+                : "https://api.star-history.com/chart?repos=AmbitiousJun/go-emby2openlist&type=date&legend=top-left&sealed_token=NnSqFDlwZFomlMt84uRgyywdYAVZbYXzUtmkfOqrrxN6S7LNobHNkPWDHTs7C3pVakrGNrYbdTfcZSr8i6_CpqBwSFskZXJFoDS_a8cI9JGrHUiPEiCSyQ"
             }
           />
         </a>
