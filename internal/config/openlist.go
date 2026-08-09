@@ -57,6 +57,9 @@ type LocalTreeGen struct {
 	// AllowContainers 允许处理的容器,为空则允许所有
 	AllowContainers string `yaml:"allow-containers"`
 
+	// ScanExcludes 扫描时排除的目录前缀列表
+	ScanExcludes []string `yaml:"scan-excludes"`
+
 	// Threads 同步线程数
 	Threads int `yaml:"threads"`
 
@@ -139,6 +142,11 @@ func (ltg *LocalTreeGen) Init() error {
 		}
 	}
 
+	// 标准化 scan-excludes 前缀
+	for i, prefix := range ltg.ScanExcludes {
+		ltg.ScanExcludes[i] = strings.TrimSpace(prefix)
+	}
+
 	return nil
 }
 
@@ -181,6 +189,25 @@ func (ltg *LocalTreeGen) IsAllowed(container string) bool {
 
 	_, ok := ltg.allowContainers[container]
 	return ok
+}
+
+// IsExcluded 判断一个 openlist 路径是否在排除列表中
+// 排除规则匹配路径中的目录段, 例如排除 /同步盘 会排除 /1066/同步盘 及其子路径
+func (ltg *LocalTreeGen) IsExcluded(path string) bool {
+	for _, exclude := range ltg.ScanExcludes {
+		exclude = strings.TrimPrefix(exclude, "/")
+		if exclude == "" {
+			continue
+		}
+		// 检查路径中是否包含排除的目录段
+		// 例如 /1066/同步盘/子目录 匹配排除规则 /同步盘
+		for _, segment := range strings.Split(path, "/") {
+			if segment == exclude {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // IsValidPrefix 判断一个 openlist 路径是否在扫描前缀的范围中
