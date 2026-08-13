@@ -105,9 +105,16 @@ func Redirect2OpenlistLink(c *gin.Context) {
 		return
 	}
 
-	// 5 如果是本地地址, 回源处理
+	// 5 如果是本地地址
 	if config.C.Emby.IsLocalMediaPath(embyPath) {
-		logs.Info("本地媒体: %s, 回源处理", embyPath)
+		if isLocalRequest(c.Request) {
+			logs.Info("内网本地媒体: %s, 直接 302 重定向回 Emby 端口直连播放: %s", embyPath, config.C.Emby.Host)
+			c.Redirect(http.StatusTemporaryRedirect, config.C.Emby.Host+c.Request.RequestURI)
+			return
+		}
+		// 如果是外网，由于无法直连内网端口，我们返回原有的 original 路径进行代理回源播放
+		// （因为有底层的 Context 机制保护，所以即使代理也不会发生内存暴涨）
+		logs.Info("外网本地媒体: %s, 执行代理回源播放", embyPath)
 		newUri := strings.Replace(c.Request.RequestURI, "stream", "original", 1)
 		newUri = strings.Replace(newUri, "universal", "original", 1)
 		c.Redirect(http.StatusTemporaryRedirect, newUri)
@@ -187,8 +194,15 @@ func ProxyOriginalResource(c *gin.Context) {
 		return
 	}
 
-	// 如果是本地媒体, 代理回源
+	// 如果是本地媒体
 	if config.C.Emby.IsLocalMediaPath(embyPath) {
+		if isLocalRequest(c.Request) {
+			logs.Info("内网本地媒体: %s, 重定向回 Emby 端口直连播放", embyPath)
+			c.Redirect(http.StatusTemporaryRedirect, config.C.Emby.Host+c.Request.RequestURI)
+			return
+		}
+		// 外网请求，执行代理回源
+		logs.Info("外网本地媒体: %s, 执行代理回源", embyPath)
 		ProxyOrigin(c)
 		return
 	}
@@ -249,4 +263,35 @@ func getFinalRedirectLink(originLink string, header http.Header) string {
 	}
 
 	return finalLink
+}
+
+// 检查客户端请求是否是通过内网 IP 访问
+func isLocalRequest(r *http.Request) bool {
+	if r == nil {
+		return false
+	}
+	host := r.Host
+	if idx := strings.Index(host, ":"); idx != -1 {
+		host = host[:idx]
+	}
+	return host == "localhost" ||
+		host == "127.0.0.1" ||
+		strings.HasPrefix(host, "192.168.") ||
+		strings.HasPrefix(host, "10.") ||
+		strings.HasPrefix(host, "172.16.") ||
+		strings.HasPrefix(host, "172.17.") ||
+		strings.HasPrefix(host, "172.18.") ||
+		strings.HasPrefix(host, "172.19.") ||
+		strings.HasPrefix(host, "172.20.") ||
+		strings.HasPrefix(host, "172.21.") ||
+		strings.HasPrefix(host, "172.22.") ||
+		strings.HasPrefix(host, "172.23.") ||
+		strings.HasPrefix(host, "172.24.") ||
+		strings.HasPrefix(host, "172.25.") ||
+		strings.HasPrefix(host, "172.26.") ||
+		strings.HasPrefix(host, "172.27.") ||
+		strings.HasPrefix(host, "172.28.") ||
+		strings.HasPrefix(host, "172.29.") ||
+		strings.HasPrefix(host, "172.30.") ||
+		strings.HasPrefix(host, "172.31.")
 }
