@@ -2,6 +2,7 @@ package https
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -28,6 +29,9 @@ type RequestHolder struct {
 
 	// closeConn 请求结束后是否关闭连接
 	closeConn bool
+
+	// ctx 请求的上下文，用于连接取消传递
+	ctx context.Context
 }
 
 // Request 构造自定义请求
@@ -92,6 +96,12 @@ func (r *RequestHolder) CloseConn() *RequestHolder {
 	return r
 }
 
+// Context 设置上下文
+func (r *RequestHolder) Context(ctx context.Context) *RequestHolder {
+	r.ctx = ctx
+	return r
+}
+
 // Do 发起请求 自动重定向
 func (r *RequestHolder) Do() (*http.Response, error) {
 	r.redirect = true
@@ -130,7 +140,11 @@ func (r *RequestHolder) execute() (string, *http.Response, error) {
 				return "", nil, fmt.Errorf("读取请求体失败: %v", err)
 			}
 		}
-		req, err := http.NewRequest(method, url, bytes.NewBuffer(bodyBytes))
+		ctx := r.ctx
+		if ctx == nil {
+			ctx = context.Background()
+		}
+		req, err := http.NewRequestWithContext(ctx, method, url, bytes.NewBuffer(bodyBytes))
 		if err != nil {
 			return "", nil, fmt.Errorf("创建请求失败: %v", err)
 		}
