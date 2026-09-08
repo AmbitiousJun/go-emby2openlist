@@ -57,9 +57,50 @@ func HandleImages(c *gin.Context) {
 	q := c.Request.URL.Query()
 	q.Del("quality")
 	q.Del("Quality")
-	q.Set("Quality", strconv.Itoa(config.C.Emby.ImagesQuality))
+
+	if config.C.Emby.ImagesOriginal {
+		// 原图模式: 移除分辨率、格式等处理参数, 使 emby 直接返回原图
+		StripImageParams(q)
+	} else {
+		q.Set("Quality", strconv.Itoa(config.C.Emby.ImagesQuality))
+	}
+
 	c.Request.RequestURI = c.Request.URL.Path + "?" + q.Encode()
 	ProxyOrigin(c)
+}
+
+// StripImageParams 移除图片处理相关参数
+//
+// emby 会根据请求中的分辨率、格式等参数对图片进行缩放/转码压缩,
+// 移除这些参数后, emby 收不到任何处理指令, 会直接返回原始图片文件
+//
+// emby 服务端解析参数时大小写不敏感, 这里同样按大小写不敏感匹配移除
+//
+// tag 参数保留, 用于图片版本变更时的缓存刷新; index 参数保留, 用于多图类型的选图
+func StripImageParams(q url.Values) {
+	for key := range q {
+		if _, ok := imageProcessingParams[strings.ToLower(key)]; ok {
+			q.Del(key)
+		}
+	}
+}
+
+// imageProcessingParams 会使 emby 对图片进行缩放/转码压缩的请求参数, 统一小写存储
+var imageProcessingParams = map[string]struct{}{
+	"maxwidth":             {},
+	"maxheight":            {},
+	"width":                {},
+	"height":               {},
+	"quality":              {},
+	"format":               {},
+	"cropwhitespace":        {},
+	"enableimageenhancers": {},
+	"addplayedindicator":    {},
+	"percentplayed":        {},
+	"unplayedcount":        {},
+	"blur":                 {},
+	"backgroundcolor":      {},
+	"foregroundlayer":      {},
 }
 
 // ProxyOrigin 将请求代理到源服务器

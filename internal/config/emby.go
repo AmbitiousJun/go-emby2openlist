@@ -51,6 +51,8 @@ type Emby struct {
 	ProxyErrorStrategy PeStrategy `yaml:"proxy-error-strategy"`
 	// ImagesQuality 图片质量
 	ImagesQuality int `yaml:"images-quality"`
+	// ImagesOriginal 是否返回原图
+	ImagesOriginal bool `yaml:"images-original"`
 	// Strm strm 配置
 	Strm *Strm `yaml:"strm"`
 	// DownloadStrategy 下载接口响应策略
