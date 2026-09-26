@@ -61,6 +61,7 @@ func WriteFakeMP3(filePath string, meta ffmpeg.Music, pic []byte) error {
 
 	id3tag.AddTextFrame("TRCK", id3v2.EncodingUTF8, meta.Track)
 	id3tag.AddTextFrame("TPOS", id3v2.EncodingUTF8, meta.Disc)
+	id3tag.AddTextFrame("TPE2", id3v2.EncodingUTF8, meta.AlbumArtist)
 
 	if l := meta.Lyrics; l != "" {
 		id3tag.AddUnsynchronisedLyricsFrame(id3v2.UnsynchronisedLyricsFrame{
