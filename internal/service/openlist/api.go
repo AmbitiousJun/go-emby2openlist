@@ -1,12 +1,14 @@
 package openlist
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/config"
 	"github.com/AmbitiousJun/go-emby2openlist/v2/internal/model"
@@ -167,10 +169,17 @@ func Fetch(uri, method string, header http.Header, body map[string]any, v any, c
 	header.Set("Content-Type", "application/json;charset=utf-8")
 	header.Set("Authorization", token)
 
-	holder := https.Request(method, host+uri).Header(header).Body(https.MapBody(body))
+	timeoutContext, cancel := context.WithTimeout(context.Background(), time.Second*30)
+	defer cancel()
+
+	holder := https.Request(method, host+uri).
+		Context(timeoutContext).
+		Header(header).
+		Body(https.MapBody(body))
 	if closeConn {
 		holder.CloseConn()
 	}
+
 	resp, err := holder.Do()
 	if err != nil {
 		return fmt.Errorf("Fetch 请求失败: %v", err)
