@@ -57,7 +57,7 @@ func InspectMusic(path string) (Music, error) {
 	m := Music{}
 	wg := sync.WaitGroup{}
 	output := string(outputBytes)
-	wg.Add(11)
+	wg.Add(12)
 
 	go func() {
 		defer wg.Done()
@@ -98,6 +98,13 @@ func InspectMusic(path string) (Music, error) {
 		defer wg.Done()
 		if genreReg.MatchString(output) {
 			m.Genre = genreReg.FindStringSubmatch(output)[1]
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		if albumArtistReg.MatchString(output) {
+			m.AlbumArtist = albumArtistReg.FindStringSubmatch(output)[1]
 		}
 	}()
 
