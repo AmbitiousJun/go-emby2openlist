@@ -6,12 +6,19 @@ type Ge2o struct {
 
 	// Web web 平台配置
 	Web *Web `yaml:"web"`
+
+	// TrustedProxies 可受信任的代理网关
+	TrustedProxies []string `yaml:"trusted-proxies"`
 }
 
 func (g *Ge2o) Init() error {
 
 	if g.Web == nil {
 		g.Web = new(Web)
+	}
+
+	if g.TrustedProxies == nil {
+		g.TrustedProxies = make([]string, 0)
 	}
 
 	return nil

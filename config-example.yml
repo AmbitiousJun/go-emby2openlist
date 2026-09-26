@@ -154,3 +154,9 @@ ge2o:
     disable: false
     # 是否禁用 emby 快速进入 web 平台的辅助按钮
     disable-emby-btn: false
+  # 受信任的代理网关, 用于解析客户端真实 IP
+  #
+  # 可配置具体 IP 地址, 也可配置 CIDR 网段
+  trusted-proxies:
+    - 127.0.0.0/8
+    - 172.16.0.0/12
