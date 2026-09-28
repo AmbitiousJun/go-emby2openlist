@@ -85,12 +85,6 @@ func (s *Synchronizer) Sync(prefix string, apiRefreshFlag bool) (total, added, d
 	s.threadsSem = make(chan struct{}, config.C.Openlist.LocalTreeGen.Threads)
 	s.hasScanFinish, s.hasScanTotal = 0, 0
 
-	// 读取根目录放置到任务通道中
-	s.activeTaskCount = 0
-	if err := s.walkDir2SyncTasks(prefix); err != nil {
-		return 0, 0, 0, fmt.Errorf("获取 openlist 根目录异常: %w", err)
-	}
-
 	// 每隔固定时间输出一下当前的同步进度
 	ticker := time.NewTicker(time.Second * 10)
 	defer ticker.Stop()
@@ -103,6 +97,12 @@ func (s *Synchronizer) Sync(prefix string, apiRefreshFlag bool) (total, added, d
 			logf(colors.Purple, "预估同步进度 (已扫描/已发现任务数) => %d/%d (%.2f%%)", s.hasScanFinish, s.hasScanTotal, percent*100)
 		}
 	}()
+
+	// 读取根目录放置到任务通道中
+	s.activeTaskCount = 0
+	if err := s.walkDir2SyncTasks(prefix); err != nil {
+		return 0, 0, 0, fmt.Errorf("获取 openlist 根目录异常: %w", err)
+	}
 
 	// 执行同步任务
 	go s.handleSyncTasks(okTaskChan)
