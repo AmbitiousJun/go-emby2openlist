@@ -1,7 +1,7 @@
 package constant
 
 const (
-	CurrentVersion = "v2.8.2"
+	CurrentVersion = "v2.9.0"
 	RepoAddr       = "https://github.com/AmbitiousJun/go-emby2openlist"
 )
 
